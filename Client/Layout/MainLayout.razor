@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
+
 @* Required *@
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -11,18 +12,57 @@
 <MudSnackbarProvider />
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+     @* <AuthorizeView>
+        <Authorized>  *@
+            <div class="sidebar">
+                <Sidebar />
+            </div>
+         @* </Authorized>
+        <NotAuthorized>
+            <NavMenu />
+        </NotAuthorized>
+    </AuthorizeView>  *@
+    
 
     <main>
-        <div class="top-row px-4 auth">
-            <LoginDisplay />
+        @* <div class="top-row px-4 auth">
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+        </div> *@
 
         <article class="content px-4">
-            @Body
+            <MudLayout>
+                @Body
+            </MudLayout>
+            
         </article>
     </main>
 </div>
+
+
+
+
+<MudThemeProvider Theme="MyCustomTheme" />
+
+@code {
+    MudTheme MyCustomTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Primary = "#4D774E",
+                Secondary = Colors.Green.Accent4,
+                AppbarBackground = "#4D774E",
+
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = Colors.Blue.Lighten1
+            },
+
+            LayoutProperties = new LayoutProperties()
+            {
+                DrawerWidthLeft = "260px",
+                DrawerWidthRight = "300px"
+            }
+        };
+}
+

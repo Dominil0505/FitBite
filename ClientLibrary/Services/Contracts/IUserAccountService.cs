@@ -6,12 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerLibrary.Repositories.Contracts
+namespace ClientLibrary.Services.Contracts
 {
-    public interface IUserAccount
+    public interface IUserAccountService
     {
         Task<GeneralResponse> CreateUserAsync(Register user);
         Task<LoginResponse> SignInAsync(CustomLogin user);
         Task<LoginResponse> RefreshTokenAsnyc(RefreshToken token);
+        Task<WeatherForecast[]> GetWeatherForecasts();
     }
 }

@@ -1,4 +1,5 @@
-﻿using DieticianApp.Models.Entities;
+﻿using BaseLibrary.Entities;
+using DieticianApp.Models.Entities;
 using DieticianApp.Models.JoinTables;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -26,6 +27,7 @@ namespace ServerLibrary.Data
         public DbSet<Admins> Admins { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Roles> Roles { get; set; }
+        public DbSet<RefreshTokenInfo> RefreshTokenInfos { get; set; }
 
         // Join Tables
         public DbSet<User_Roles> User_Roles { get; set; }

@@ -10,3 +10,11 @@
 @using Client
 @using Client.Layout
 @using MudBlazor
+
+@using BaseLibrary.DTOs
+@using ClientLibrary.Helpers
+@using ClientLibrary.Services.Contracts
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IUserAccountService accountService 
+@inject NavigationManager NavManager
