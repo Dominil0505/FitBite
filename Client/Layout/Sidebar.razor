@@ -1,14 +1,15 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@* <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Client</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
-</div>
+</div> *@
 
+@* <MudPaper>
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
+    <MudNavMenu class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
@@ -26,8 +27,26 @@
         </div>
         <MudNavLink Href="/authentication/login">Login</MudNavLink>
         <MudNavLink Href="/authentication/register">Register</MudNavLink>
-    </nav>
+    </MudNavMenu>
 </div>
+</MudPaper> *@
+
+<MudPaper Width="250px" Class="d-inline-flex py-3 mud-theme-primary" Elevation="0">
+    <MudNavMenu Class="mud-width-full">
+        <MudLink Href="/" Typo="Typo.h6" Class="px-4 mud-theme-primary" >Fitbite</MudLink>
+        <MudDivider Class="my-2" />
+        <MudNavLink Href="/Foods" Icon="fas fa-utensils" IconColor="Color.Success">Food</MudNavLink>
+        <MudNavLink Href="/Allergies" Icon="fas fa-syringe" IconColor="Color.Info">Allergies</MudNavLink>
+        <MudNavLink Href="/Ingredients" Icon="fas fa-carrot" IconColor="Color.Success">Ingredients</MudNavLink>
+        <MudNavLink Href="/Medicines" Icon="fas fa-tablets" IconColor="Color.Info">Medicines</MudNavLink>
+        <MudNavLink Href="/Diseases" Icon="fas fa-disease" IconColor="Color.Success">Diseases</MudNavLink>
+        <MudNavLink Href="/Patients" Icon="fas fa-user" IconColor="Color.Info">Patients</MudNavLink>
+        <MudNavGroup Title="Settings" Icon="fas fa-cogs" Expanded="true">
+            <MudNavLink Href="/users" Icon="fas fa-users" IconColor="Color.Success">Users</MudNavLink>
+            <MudNavLink Href="/security" Icon="fas fa-user-shield" IconColor="Color.Info">Security</MudNavLink>
+        </MudNavGroup>
+    </MudNavMenu>
+</MudPaper>
 
 @code {
     private bool collapseNavMenu = true;

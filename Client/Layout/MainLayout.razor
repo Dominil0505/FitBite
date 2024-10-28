@@ -1,15 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
 
-@* Required *@
 <MudThemeProvider />
 <MudPopoverProvider />
 
-@* Needed for dialogs *@
 <MudDialogProvider />
 
-@* Needed for snackbars *@
 <MudSnackbarProvider />
+
+    <script src="https://kit.fontawesome.com/a250413ada.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 
 <div class="page">
      @* <AuthorizeView>
@@ -25,9 +25,17 @@
     
 
     <main>
-        @* <div class="top-row px-4 auth">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div> *@
+         <div class="top-row px-6">
+            <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+            <ActivatorContent>
+                <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">User</MudChip>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem>Profile</MudMenuItem>
+                <MudMenuItem>Sign Out</MudMenuItem>
+            </ChildContent>
+        </MudMenu>            
+        </div>
 
         <article class="content px-4">
             <MudLayout>

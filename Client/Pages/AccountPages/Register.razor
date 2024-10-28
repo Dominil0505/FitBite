@@ -4,13 +4,7 @@
 
 }
 
-<h1>Register</h1>
-<h1>Register</h1>
-<h1>Register</h1>
-<h1>Register</h1>
-<h1>Register</h1>
-
-@* @using System.ComponentModel.DataAnnotations
+@using System.ComponentModel.DataAnnotations
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
@@ -40,6 +34,8 @@
 
 @code {
     RegisterAccountForm model = new RegisterAccountForm();
+    [Inject] private GetHttpClient HttpClientService {get; set;}
+
     bool success;
 
     public class RegisterAccountForm
@@ -61,11 +57,29 @@
 
     }
 
-    private void OnValidSubmit(EditContext context)
+    private async Task OnValidSubmit()
     {
-        success = true;
+        try
+        {
+            var client = HttpClientService.GetPublicHttpClient();
+            var response = await client.PostAsJsonAsync("api/Authentication/register", model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                success = true;
+            }
+            else
+            {
+                success = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            success = false;
+        }
+
         StateHasChanged();
     }
 
-} *@
+}
 
