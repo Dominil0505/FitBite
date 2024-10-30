@@ -1,6 +1,6 @@
-﻿using DieticianApp.Models.Entities;
+﻿using BaseLibrary.Entities;
 
-namespace DieticianApp.Models.JoinTables
+namespace BaseLibrary.EntitiesRelation
 {
     public class User_Roles
     {

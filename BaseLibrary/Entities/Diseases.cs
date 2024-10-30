@@ -1,8 +1,8 @@
-﻿using DieticianApp.Models.JoinTables;
+﻿using BaseLibrary.EntitiesRelation;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace DieticianApp.Models.Entities
+namespace BaseLibrary.Entities
 {
     [Index(nameof(Disease_Name), IsUnique = true)]
     public class Diseases

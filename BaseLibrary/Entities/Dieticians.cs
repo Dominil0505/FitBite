@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace DieticianApp.Models.Entities
+namespace BaseLibrary.Entities
 {
     public class Dieticians
     {

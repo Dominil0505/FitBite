@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DieticianApp.Models.Entities
+namespace BaseLibrary.Entities
 {
     public class Admins
     {

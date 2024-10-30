@@ -1,7 +1,7 @@
-﻿using DieticianApp.Models.JoinTables;
+﻿using BaseLibrary.EntitiesRelation;
 using System.ComponentModel.DataAnnotations;
 
-namespace DieticianApp.Models.Entities
+namespace BaseLibrary.Entities
 {
     public class Roles
     {
