@@ -1,60 +1,60 @@
 ﻿@page "/authentication/login"
+@layout AuthenticationLayout
+@using Client.Pages.OtherPages
 
-@using BaseLibrary.DTOs
-@inject HttpClient httpClient
-
-<MudGrid>
-    <MudItem xs="12" sm="7">
-        <MudPaper Class="pa-4">
-            <MudForm Model="User" @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" OnValidSubmit="HandleLogin">
-                <MudTextField T="string" Label="Email" Required="true" RequiredError="Email is required!"
-                              @bind-Value="User.Email"
-                              Validation="@(new {ErrorMessage = "The email address is invalid"})" />
-                <MudTextField T="string" Label="Password" HelperText="Choose a strong password" @ref="pwField1"
-                              InputType="InputType.Password"
-                              @bind-Value="User.Password"
-                              Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
-                              RequiredError="Password is required!" />
-                <div class="d-flex align-center justify-space-between">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" OnClick="@(async () => await HandleLogin() )" Class="ml-auto">Login</MudButton>
-                </div>
-            </MudForm>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+<EditForm Model="User" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <MudGrid Class="d-flex mt-20 justify-center">
+        <MudItem xs="12" sm="4">
+            <MudCard class="pa-4">
+                <MudCardHeader Class="d-flex justify-center">
+                    <h1>Welcome back</h1>
+                </MudCardHeader>
+                <MudCardHeader Class="d-flex justify-center">
+                    <h2>Sign in</h2>
+                </MudCardHeader>
+                <MudCardHeader Class="d-flex justify-center">
+                    <img width="96" height="96" src="https://img.icons8.com/color/96/doctor-female-skin-type-2.png" alt="doctor" />
+                    <img width="96" height="96" src="https://img.icons8.com/color/96/user.png" alt="user" />
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudTextField Label="Email" Class="mt-3" @bind-Value="User.Email"/>
+                    <MudTextField Label="Password" Class="mt-3" @bind-Value="User.Password" InputType="InputType.Password" />
+                <h3>If you don't have an account <MudLink Href="/authentication/register">Register</MudLink></h3>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-center">
+                    @if (ShowLoadingButton)
+                    {
+                        <ButtonLoadingSpinner></ButtonLoadingSpinner>
+                    }
+                    else
+                    {
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="" Color="Color.Primary">Login</MudButton>
+                    }
+                    
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm> 
 
 @code {
-    bool success;
-    string[] errors = { };
-    MudTextField<string> pwField1;
-    MudForm form;
-
     CustomLogin User = new();
 
-    private IEnumerable<string> PasswordStrength(string pw)
-    {
-        if (string.IsNullOrWhiteSpace(pw))
-        {
-            yield return "Password is required!";
-            yield break;
-        }
-    }
+    public bool ShowLoadingButton { get; set; }
 
-    private async Task HandleLogin()
+    async Task HandleLogin()
     {
+        ShowLoadingButton = true;
         var result = await accountService.SignInAsync(User);
 
-        if (result.Flag)
-        {
+        if(result.Flag){
             var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
             await customAuthStateProvider.UpdateAuthenticationState(new UserSession()
-                {
-                    Token = result.Token, RefreshToken = result.RefreshToken
-        });
-
+                { Token = result.Token, RefreshToken = result.RefreshToken });
             NavManager.NavigateTo("/", forceLoad: true);
         }
 
-        StateHasChanged();
+        ShowLoadingButton = false;
     }
 }

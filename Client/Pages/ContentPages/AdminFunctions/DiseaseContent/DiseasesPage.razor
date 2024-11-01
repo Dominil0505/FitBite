@@ -1,0 +1,15 @@
+@page "/Diseases"
+<h1>Diseases</h1>
+
+@foreach (var d in ds){
+    <p>@d.Disease_Name</p>
+}
+
+@code{
+    List<Diseases> ds = new List<Diseases>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ds = await diseaseService.GetAll(Constants.diseaseBaseUrl);
+    }
+}

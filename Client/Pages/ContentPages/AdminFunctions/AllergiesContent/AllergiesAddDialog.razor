@@ -1,0 +1,36 @@
+﻿
+<EditForm Model="Allergy" OnValidSubmit="AddAllergy">
+    <MudDialog>
+        <TitleContent>
+            <h2>Add allergy</h2>
+        </TitleContent>
+        <DialogContent>
+        
+                <MudTextField T="string" Label="Allergy name" Required="true" RequiredError="Allegy name is required!" @bind-Value="Allergy.Allergy_Name" />
+       
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    AllergyDTO Allergy = new();
+
+    async Task AddAllergy()
+    {
+        var result = await allergyService.Insert(Allergy, Constants.allergyBaseUrl);
+
+        if (result.flag)
+        {
+            Allergy = new();
+        }
+    }
+}
+

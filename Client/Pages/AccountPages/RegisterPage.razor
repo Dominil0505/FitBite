@@ -1,0 +1,61 @@
+﻿@page "/authentication/register"
+@layout AuthenticationLayout
+
+<EditForm Model="User" OnValidSubmit="HandleRegistration">
+    <DataAnnotationsValidator />
+    <MudGrid Class="d-flex mt-20 justify-center">
+        <MudItem xs="12" sm="5">
+            <MudCard class="pa-4">
+                <MudCardHeader Class="d-flex justify-center">
+                    <h1>Registration</h1>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudTextField Label="FullName"
+                                  @bind-Value="User.Name" />
+                    <MudTextField Label="Email" Class="mt-3"
+                                  @bind-Value="User.Email" />
+                    <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                                  @bind-Value="User.Password"InputType="InputType.Password" />
+                    <MudTextField Label="Password" HelperText="Repeat the password" Class="mt-3"
+                                  @bind-Value="User.ConfirmPassword" InputType="InputType.Password" Style="@($"border")"/>
+                </MudCardContent>
+                  <MudSelect T="string" Label="Select a role" @bind-Value="User.Role">
+                    @foreach (var role in roles)
+                    {
+                        <MudSelectItem Value="@role.Role_Name">@role.Role_Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <h3>If have an account <MudLink Href="/authentication/login">Login</MudLink></h3>
+                <MudCardActions Class="d-flex justify-center">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="" Color="Color.Primary">Register</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    Register User = new();
+
+    async Task HandleRegistration(){
+        var result = await accountService.CreateUserAsync(User);
+
+        if (result.flag)
+        {
+            User = new();
+        }
+        else
+        {
+            
+        }
+    }
+
+    private List<Roles> roles = new List<Roles>();
+
+
+    protected override async Task OnInitializedAsync(){
+        roles = await userRoleService.GetRolesAsync();
+    } 
+}
+

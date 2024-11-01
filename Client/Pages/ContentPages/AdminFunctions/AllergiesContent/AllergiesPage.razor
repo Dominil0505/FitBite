@@ -1,0 +1,120 @@
+@page "/Allergies"
+
+<MudTable Items="@allergies" Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
+          Filter="new Func<AllergyDTO, bool>(FilterFunc)"
+          @bind-SelectedItem="selectedItem1" SortLabel="Sort By"
+          CommitEditTooltip="Commit Edit"
+          RowEditPreview="BackupItem"
+          RowEditCancel="ResetItemToOriginalValues"
+          RowEditCommit="ItemHasBeenCommitted"
+          IsEditRowSwitchingBlocked="@blockSwitch"
+          ApplyButtonPosition="@applyButtonPosition"
+          EditButtonPosition="@editButtonPosition"
+          EditTrigger="@editTrigger">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Allergies List</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudSpacer />
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add allergy" Size="Size.Medium" @onclick="OpenDialogAsync" />
+    </ToolBarContent>
+
+    <ColGroup>
+        @if (applyButtonPosition.DisplayApplyButtonAtStart() || (editButtonPosition.DisplayEditButtonAtStart() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+        <col style="width:50px;" />
+        <col style="width:50%;" />
+        @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+    </ColGroup>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<AllergyDTO, object>(x => x.Allergy_Id)">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<AllergyDTO, object>(x => x.Allergy_Name!)">Allergy Name</MudTableSortLabel></MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Allergy_Id</MudTd>
+            <MudTd DataLabel="Allergy Name">@context.Allergy_Name</MudTd>
+        </RowTemplate>
+
+        <RowEditingTemplate>
+            <MudTd DataLabel="ID">@context.Allergy_Id</MudTd>
+            <MudTd DataLabel="Allergy Name">
+                <MudTextField @bind-Value="context.Allergy_Name" Required />
+         </MudTd>
+     </RowEditingTemplate>
+
+     <PagerContent>
+         <MudTablePager />
+     </PagerContent>
+     <EditButtonContent Context="button">
+         <MudFab Color="Color.Info" Size="@Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+         @* <MudFab Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small"/> *@
+         <MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" />
+     </EditButtonContent>
+
+ </MudTable>
+
+ @code {
+    private List<string> editEvents = new();
+    private bool dense = false;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = false;
+    private string searchString = "";
+    private AllergyDTO selectedItem1 = null;
+    private AllergyDTO elementBeforeEdit;
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
+    private IEnumerable<AllergyDTO> allergies = new List<AllergyDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        allergies = await allergyService.GetAll(Constants.allergyBaseUrl);
+    }
+
+    private void BackupItem(object allergy)
+    {
+        elementBeforeEdit = new AllergyDTO
+            {
+                Allergy_Id = ((AllergyDTO)allergy).Allergy_Id,
+                Allergy_Name = ((AllergyDTO)allergy).Allergy_Name,
+            };
+    }
+
+    private void ItemHasBeenCommitted(object allergy)
+    {
+        editEvents.Add($"Changes to allergy {((AllergyDTO)allergy).Allergy_Name} committed");
+        StateHasChanged();
+    }
+
+    private void ResetItemToOriginalValues(object allergy)
+    {
+        ((AllergyDTO)allergy).Allergy_Name = elementBeforeEdit.Allergy_Name;
+        editEvents.Add($"Editing of allergy {((AllergyDTO)allergy).Allergy_Name} canceled");
+    }
+
+    private bool FilterFunc(AllergyDTO allergy)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (allergy.Allergy_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<AllergiesAddDialog>("Simple Dialog", options);
+    }
+}

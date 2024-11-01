@@ -12,30 +12,37 @@
         <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 
 <div class="page">
-     @* <AuthorizeView>
-        <Authorized>  *@
+      <AuthorizeView>
+        <Authorized> 
             <div class="sidebar">
                 <Sidebar />
             </div>
-         @* </Authorized>
+          </Authorized>
         <NotAuthorized>
-            <NavMenu />
+            @{
+                NavManager.NavigateTo("/authentication/login");
+            }
         </NotAuthorized>
-    </AuthorizeView>  *@
+    </AuthorizeView> 
     
 
     <main>
-         <div class="top-row px-6">
-            <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
-            <ActivatorContent>
-                <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">User</MudChip>
-            </ActivatorContent>
-            <ChildContent>
-                <MudMenuItem>Profile</MudMenuItem>
-                <MudMenuItem>Sign Out</MudMenuItem>
-            </ChildContent>
-        </MudMenu>            
-        </div>
+        <AuthorizeView>
+            <Authorized>
+                <div class="top-row px-6">
+                    <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                        <ActivatorContent>
+                            <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">User</MudChip>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <MudMenuItem>Profile</MudMenuItem>
+                            <MudMenuItem @onclick="LogoutClicked">Sign Out</MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+         
 
         <article class="content px-4">
             <MudLayout>
@@ -52,6 +59,13 @@
 <MudThemeProvider Theme="MyCustomTheme" />
 
 @code {
+    async Task LogoutClicked()
+    {
+        var logoutModel = new UserSession();
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(logoutModel);
+        NavManager.NavigateTo("/", forceLoad: true);
+    }
     MudTheme MyCustomTheme = new MudTheme()
         {
             PaletteLight = new PaletteLight()

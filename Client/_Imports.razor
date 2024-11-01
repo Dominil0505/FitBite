@@ -1,5 +1,6 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using BaseLibrary.Entities
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
@@ -9,12 +10,28 @@
 @using Microsoft.JSInterop
 @using Client
 @using Client.Layout
+
+@* Mudblazor *@
 @using MudBlazor
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
 
 @using BaseLibrary.DTOs
 @using ClientLibrary.Helpers
 @using ClientLibrary.Services.Contracts
 
-@inject AuthenticationStateProvider AuthStateProvider
-@inject IUserAccountService accountService 
 @inject NavigationManager NavManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+@* Authentication *@
+@inject IUserAccountService accountService 
+
+@* User roles for registration page *@
+@inject IUserRoles<Roles> userRoleService
+
+@* // Allergy | Disease | Ingredient | Medication *@
+@inject IGenericServiceInterface<AllergyDTO> allergyService
+@inject IGenericServiceInterface<Diseases> diseaseService
+@inject IGenericServiceInterface<Ingredient> ingredientService
+@inject IGenericServiceInterface<Medication> medicationService
