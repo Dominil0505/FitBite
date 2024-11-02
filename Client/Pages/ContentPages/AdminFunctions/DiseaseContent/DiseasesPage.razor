@@ -1,15 +1,186 @@
 @page "/Diseases"
-<h1>Diseases</h1>
 
-@foreach (var d in ds){
-    <p>@d.Disease_Name</p>
-}
+<MudTable Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
+          CommitEditTooltip="Commit Edit"
+          RowEditPreview="BackupItem"
+          RowEditCancel="ResetItemToOriginalValues"
+          RowEditCommit="ItemHasBeenCommitted"
+          IsEditRowSwitchingBlocked="@blockSwitch"
+          ApplyButtonPosition="@applyButtonPosition"
+          EditButtonPosition="@editButtonPosition"
+          EditTrigger="@editTrigger"
+          FixedHeader="@fixed_header"
+          Loading="@loading"
+          ServerData="ServerReload"
+          @ref="table"
+          Height="@(fixed_header ?"710px":"")">
 
-@code{
-    List<Diseases> ds = new List<Diseases>();
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Disease List</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudSpacer />
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add disease" Size="Size.Medium" @onclick="OpenDialogAsync" />
+    </ToolBarContent>
 
-    protected override async Task OnInitializedAsync()
+    <ColGroup>
+        @if (applyButtonPosition.DisplayApplyButtonAtStart() || (editButtonPosition.DisplayEditButtonAtStart() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+        <col style="width:50px;" />
+        <col style="width:50%;" />
+        @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+    </ColGroup>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="id_field" T="DiseaseDTO">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="DiseaseDTO">Disease Name</MudTableSortLabel></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Disease_Id</MudTd>
+            <MudTd DataLabel="Disease Name">@context.Disease_Name</MudTd>
+            <MudTd><MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => await DeleteUserAsync(@context.Disease_Id))" /></MudTd>
+        </RowTemplate>
+
+        <RowEditingTemplate>
+            <MudTd DataLabel="ID"> @context.Disease_Id </MudTd>
+            <MudTd DataLabel="Disease Name"> <MudTextField @bind-Value="context.Disease_Name" Required /> </MudTd>
+     </RowEditingTemplate>
+
+     <NoRecordsContent>
+         <MudText>No matching records found</MudText>
+     </NoRecordsContent>
+     <LoadingContent>
+         <MudText>Loading...</MudText>
+     </LoadingContent>
+     <PagerContent>
+         <MudTablePager />
+     </PagerContent>
+     <EditButtonContent Context="button">
+         <MudFab Color="Color.Info" Size="@Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+     </EditButtonContent>
+
+ </MudTable>
+
+ @code {
+    private List<string> editEvents = new();
+    private bool dense = false;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = false;
+    private bool fixed_header = true;
+    private bool loading = false;
+
+    private DiseaseDTO selectedItem1 = null;
+    private DiseaseDTO elementBeforeEdit;
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
+
+
+    private IEnumerable<DiseaseDTO> disease = new List<DiseaseDTO>();
+    private MudTable<DiseaseDTO> table;
+    private int totalItems;
+    private string searchString = null;
+
+    private async Task DeleteUserAsync(int disease_id)
     {
-        ds = await diseaseService.GetAll(Constants.diseaseBaseUrl);
+        var parameters = new DialogParameters<DeleteDiseaseDialog>
+        {
+            {x => x.ContentText, "Do you really want to delete these records? This process cannot be undone."},
+            {x => x.ButtonText, "Delete"},
+            {x => x.Color, Color.Error},
+            {x => x.disease_id, disease_id}
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = DialogService.Show<DeleteDiseaseDialog>("Delete disease", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await diseaseService.Delete(disease_id, Constants.diseaseBaseUrl);
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Disease successfully deleled!", Severity.Error);
+        }
     }
+
+
+    private void BackupItem(object disease)
+    {
+        elementBeforeEdit = new DiseaseDTO
+            {
+                Disease_Name = ((DiseaseDTO)disease).Disease_Name,
+                Disease_Id = ((DiseaseDTO)disease).Disease_Id
+            };
+    }
+
+    private void ItemHasBeenCommitted(object disease)
+    {
+        diseaseService.Update(((DiseaseDTO)disease), Constants.diseaseBaseUrl);
+        StateHasChanged();
+    }
+
+
+    private void ResetItemToOriginalValues(object disease)
+    {
+        ((DiseaseDTO)disease).Disease_Name = elementBeforeEdit.Disease_Name;
+    }
+
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<AddDiseaseDialog>("Add disease", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Successfully added disease!", Severity.Success);
+        }
+    }
+
+    private async Task<TableData<DiseaseDTO>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<DiseaseDTO> data = await diseaseService.GetAll(Constants.diseaseBaseUrl);
+        await Task.Delay(300, token);
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Disease_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "name_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Disease_Name);
+                break;
+            case "id_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Disease_Id);
+                break;
+        }
+
+        disease = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<DiseaseDTO>() { TotalItems = totalItems, Items = disease };
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
 }

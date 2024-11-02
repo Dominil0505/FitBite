@@ -41,12 +41,20 @@
                     </MudMenu>
                 </div> *@
 
-                    <MudAppBar Color="Color.Primary" Fixed="false">
-                        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" />
-                    <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">Hello, @context.User.Identity?.Name!</MudChip>
-                        <MudSpacer />
-                        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" />
-                    </MudAppBar>
+                <MudAppBar Color="Color.Primary" Fixed="false">
+                    <!-- Felhasználói név megjelenítése -->
+                    <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">
+                        Hello, @context.User.Identity?.Name!
+                    </MudChip>
+
+                    <MudSpacer />
+
+                    <MudMenu Icon="fas fa-user" Color="Color.Inherit">
+                        <MudMenuItem>Profile</MudMenuItem>
+                        <MudMenuItem>Setting</MudMenuItem>
+                        <MudMenuItem OnClick="LogoutClicked">Sing out</MudMenuItem>
+                    </MudMenu>
+                </MudAppBar>
             </Authorized>
         </AuthorizeView>
          

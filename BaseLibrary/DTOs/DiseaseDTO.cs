@@ -2,10 +2,10 @@
 
 namespace BaseLibrary.DTOs
 {
-    public class AllergyDTO
+    public class DiseaseDTO
     {
-        public int Allergy_Id { get; set; }
+        public int Disease_Id { get; set; }
         [Required(ErrorMessage = "Allergy name is required")]
-        public string? Allergy_Name { get; set; }
+        public string? Disease_Name { get; set; }
     }
 }

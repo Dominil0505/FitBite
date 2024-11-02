@@ -1,0 +1,47 @@
+﻿
+<EditForm Model="Disease" OnValidSubmit="AddDisease">
+    <MudDialog>
+        <TitleContent>
+            <h2>Add Disease</h2>
+        </TitleContent>
+        <DialogContent>
+            @if (isUsed)
+            {
+                <MudAlert Severity="Severity.Error">@message</MudAlert>
+            }
+            <MudTextField T="string" Label="Disease name" Required="true" RequiredError="Allegy name is required!" @bind-Value="Disease.Disease_Name" />
+
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private bool isUsed = false;
+    private string message = "";
+
+    private void Cancel() => MudDialog.Cancel();
+
+    DiseaseDTO Disease = new();
+
+    async Task AddDisease()
+    {
+        var result = await diseaseService.Insert(Disease, Constants.diseaseBaseUrl);
+
+        if (result.flag)
+        {
+            MudDialog.Close(DialogResult.Ok(Disease));
+        }
+        else
+        {
+            isUsed = true;
+            message = result.Message;
+        }
+    }
+}
+

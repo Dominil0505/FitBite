@@ -103,7 +103,6 @@
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
         var dialog = DialogService.Show<DeleteAllergyDialog>("Delete allergy", parameters, options);
 
-        // A dialog eredményének figyelése
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -142,7 +141,7 @@
     private async Task OpenDialogAsync()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        var dialog = DialogService.Show<AllergiesAddDialog>("Add Allergy", options);
+        var dialog = DialogService.Show<AddAllergyDialog>("Add Allergy", options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
