@@ -5,8 +5,11 @@
             <h2>Add allergy</h2>
         </TitleContent>
         <DialogContent>
-        
-                <MudTextField T="string" Label="Allergy name" Required="true" RequiredError="Allegy name is required!" @bind-Value="Allergy.Allergy_Name" />
+            @if (isUsed)
+            {
+                <MudAlert Severity="Severity.Error">@message</MudAlert>
+            }
+            <MudTextField T="string" Label="Allergy name" Required="true" RequiredError="Allegy name is required!" @bind-Value="Allergy.Allergy_Name" />
        
         </DialogContent>
         <DialogActions>
@@ -19,6 +22,9 @@
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; }
 
+    private bool isUsed = false;
+    private string message = "";
+
     private void Cancel() => MudDialog.Cancel();
 
     AllergyDTO Allergy = new();
@@ -29,7 +35,12 @@
 
         if (result.flag)
         {
-            Allergy = new();
+            MudDialog.Close(DialogResult.Ok(Allergy));
+        }
+        else
+        {
+            isUsed = true;
+            message = result.Message;
         }
     }
 }

@@ -1,8 +1,6 @@
 @page "/Allergies"
 
-<MudTable Items="@allergies" Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
-          Filter="new Func<AllergyDTO, bool>(FilterFunc)"
-          @bind-SelectedItem="selectedItem1" SortLabel="Sort By"
+<MudTable Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
           CommitEditTooltip="Commit Edit"
           RowEditPreview="BackupItem"
           RowEditCancel="ResetItemToOriginalValues"
@@ -10,12 +8,17 @@
           IsEditRowSwitchingBlocked="@blockSwitch"
           ApplyButtonPosition="@applyButtonPosition"
           EditButtonPosition="@editButtonPosition"
-          EditTrigger="@editTrigger">
+          EditTrigger="@editTrigger"
+          FixedHeader="@fixed_header" 
+          Loading="@loading"
+          ServerData="ServerReload"
+          @ref="table"
+          Height="@(fixed_header ?"710px":"")">
 
     <ToolBarContent>
         <MudText Typo="Typo.h6">Allergies List</MudText>
         <MudSpacer />
-        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start"
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         <MudSpacer />
         <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add allergy" Size="Size.Medium" @onclick="OpenDialogAsync" />
@@ -34,29 +37,33 @@
         }
     </ColGroup>
     <HeaderContent>
-        <MudTh><MudTableSortLabel SortBy="new Func<AllergyDTO, object>(x => x.Allergy_Id)">ID</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortBy="new Func<AllergyDTO, object>(x => x.Allergy_Name!)">Allergy Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="id_field" T="AllergyDTO">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="AllergyDTO">Allergy Name</MudTableSortLabel></MudTh>
+        <MudTh></MudTh>
     </HeaderContent>
 
     <RowTemplate>
         <MudTd DataLabel="ID">@context.Allergy_Id</MudTd>
-            <MudTd DataLabel="Allergy Name">@context.Allergy_Name</MudTd>
-        </RowTemplate>
+        <MudTd DataLabel="Allergy Name">@context.Allergy_Name</MudTd>
+        <MudTd><MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => await DeleteUserAsync(@context.Allergy_Id))" /></MudTd>
+    </RowTemplate>
 
         <RowEditingTemplate>
-            <MudTd DataLabel="ID">@context.Allergy_Id</MudTd>
-            <MudTd DataLabel="Allergy Name">
-                <MudTextField @bind-Value="context.Allergy_Name" Required />
-         </MudTd>
-     </RowEditingTemplate>
+            <MudTd DataLabel="ID"> @context.Allergy_Id </MudTd>
+            <MudTd DataLabel="Allergy Name"> <MudTextField @bind-Value="context.Allergy_Name" Required /> </MudTd>
+        </RowEditingTemplate>
 
+     <NoRecordsContent>
+         <MudText>No matching records found</MudText>
+     </NoRecordsContent>
+     <LoadingContent>
+         <MudText>Loading...</MudText>
+     </LoadingContent>
      <PagerContent>
          <MudTablePager />
      </PagerContent>
      <EditButtonContent Context="button">
-         <MudFab Color="Color.Info" Size="@Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
-         @* <MudFab Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small"/> *@
-         <MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" />
+        <MudFab Color="Color.Info" Size="@Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
      </EditButtonContent>
 
  </MudTable>
@@ -68,18 +75,46 @@
     private bool ronly = false;
     private bool canCancelEdit = true;
     private bool blockSwitch = false;
-    private string searchString = "";
+    private bool fixed_header = true;
+    private bool loading = false;
+
     private AllergyDTO selectedItem1 = null;
     private AllergyDTO elementBeforeEdit;
     private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
     private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
     private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
-    private IEnumerable<AllergyDTO> allergies = new List<AllergyDTO>();
 
-    protected override async Task OnInitializedAsync()
+
+    private IEnumerable<AllergyDTO> allergies = new List<AllergyDTO>();
+    private MudTable<AllergyDTO> table;
+    private int totalItems;
+    private string searchString = null;
+
+    private async Task DeleteUserAsync(int allergy_id)
     {
-        allergies = await allergyService.GetAll(Constants.allergyBaseUrl);
+        var parameters = new DialogParameters<DeleteAllergyDialog>
+        {
+            {x => x.ContentText, "Do you really want to delete these records? This process cannot be undone."},
+            {x => x.ButtonText, "Delete"},
+            {x => x.Color, Color.Error},
+            {x => x.allergy_id, allergy_id}
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = DialogService.Show<DeleteAllergyDialog>("Delete allergy", parameters, options);
+
+        // A dialog eredményének figyelése
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await allergyService.Delete(allergy_id, Constants.allergyBaseUrl);
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Allergy successfully deleled!", Severity.Error);
+        }
     }
+
 
     private void BackupItem(object allergy)
     {
@@ -93,8 +128,10 @@
     private void ItemHasBeenCommitted(object allergy)
     {
         editEvents.Add($"Changes to allergy {((AllergyDTO)allergy).Allergy_Name} committed");
+        allergyService.Update(((AllergyDTO)allergy), Constants.allergyBaseUrl);
         StateHasChanged();
     }
+
 
     private void ResetItemToOriginalValues(object allergy)
     {
@@ -102,19 +139,51 @@
         editEvents.Add($"Editing of allergy {((AllergyDTO)allergy).Allergy_Name} canceled");
     }
 
-    private bool FilterFunc(AllergyDTO allergy)
-    {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (allergy.Allergy_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        return false;
-    }
-
-    private Task OpenDialogAsync()
+    private async Task OpenDialogAsync()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<AllergiesAddDialog>("Add Allergy", options);
+        var result = await dialog.Result;
 
-        return DialogService.ShowAsync<AllergiesAddDialog>("Simple Dialog", options);
+        if (!result.Canceled)
+        {
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Successfully added allergy!", Severity.Success);   
+        }
     }
+
+    private async Task<TableData<AllergyDTO>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<AllergyDTO> data = await allergyService.GetAll(Constants.allergyBaseUrl);
+        await Task.Delay(300, token);
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Allergy_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "name_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Allergy_Name);
+                break;
+            case "id_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Allergy_Id);
+                break;
+        }
+
+        allergies = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<AllergyDTO>() { TotalItems = totalItems, Items = allergies };
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
 }

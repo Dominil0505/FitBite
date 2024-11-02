@@ -29,17 +29,24 @@
     <main>
         <AuthorizeView>
             <Authorized>
-                <div class="top-row px-6">
+                @* <div class="top-row px-6">
                     <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
                         <ActivatorContent>
-                            <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">User</MudChip>
+                            <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">Hello, @context.User.Identity?.Name!</MudChip>
                         </ActivatorContent>
                         <ChildContent>
                             <MudMenuItem>Profile</MudMenuItem>
                             <MudMenuItem @onclick="LogoutClicked">Sign Out</MudMenuItem>
                         </ChildContent>
                     </MudMenu>
-                </div>
+                </div> *@
+
+                    <MudAppBar Color="Color.Primary" Fixed="false">
+                        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" />
+                    <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">Hello, @context.User.Identity?.Name!</MudChip>
+                        <MudSpacer />
+                        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" />
+                    </MudAppBar>
             </Authorized>
         </AuthorizeView>
          
