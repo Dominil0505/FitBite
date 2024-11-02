@@ -1,2 +1,192 @@
 @page "/Ingredients"
-<h1>Ingredients</h1>
+
+<MudTable Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
+          CommitEditTooltip="Commit Edit"
+          RowEditPreview="BackupItem"
+          RowEditCancel="ResetItemToOriginalValues"
+          RowEditCommit="ItemHasBeenCommitted"
+          IsEditRowSwitchingBlocked="@blockSwitch"
+          ApplyButtonPosition="@applyButtonPosition"
+          EditButtonPosition="@editButtonPosition"
+          EditTrigger="@editTrigger"
+          FixedHeader="@fixed_header"
+          Loading="@loading"
+          ServerData="ServerReload"
+          @ref="table"
+          Height="@(fixed_header ?"710px":"")">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">ingredients List</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudSpacer />
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add ingredient" Size="Size.Medium" @onclick="OpenDialogAsync" />
+    </ToolBarContent>
+
+    <ColGroup>
+        @if (applyButtonPosition.DisplayApplyButtonAtStart() || (editButtonPosition.DisplayEditButtonAtStart() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+        <col style="width:50px;" />
+        <col style="width:50%;" />
+        @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+    </ColGroup>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="id_field" T="IngredientDTO">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="IngredientDTO">ingredient Name</MudTableSortLabel></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Ingredient_Id</MudTd>
+        <MudTd DataLabel="ingredient Name">@context.Calorie</MudTd>
+        <MudTd DataLabel="ingredient Name">@context.Protein</MudTd>
+        <MudTd DataLabel="ingredient Name">@context.Fat</MudTd>
+        <MudTd DataLabel="ingredient Name">@context.Carbohydrate</MudTd>
+        <MudTd><MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => await DeleteUserAsync(@context.Ingredient_Id))" /></MudTd>
+    </RowTemplate>
+
+        <RowEditingTemplate>
+            <MudTd DataLabel="ID"> @context.Ingredient_Id </MudTd>
+            <MudTd DataLabel="ingredient Name"> <MudTextField @bind-Value="context.Ingredient_Name" Required /> </MudTd>
+     </RowEditingTemplate>
+
+     <NoRecordsContent>
+         <MudText>No matching records found</MudText>
+     </NoRecordsContent>
+     <LoadingContent>
+         <MudText>Loading...</MudText>
+     </LoadingContent>
+     <PagerContent>
+         <MudTablePager />
+     </PagerContent>
+     <EditButtonContent Context="button">
+         <MudFab Color="Color.Info" Size="@Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+     </EditButtonContent>
+
+ </MudTable>
+
+ @code {
+    private List<string> editEvents = new();
+    private bool dense = false;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = false;
+    private bool fixed_header = true;
+    private bool loading = false;
+
+    private IngredientDTO selectedItem1 = null;
+    private IngredientDTO elementBeforeEdit;
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
+
+
+    private IEnumerable<IngredientDTO> ingredients = new List<IngredientDTO>();
+    private MudTable<IngredientDTO> table;
+    private int totalItems;
+    private string searchString = null;
+
+
+    private async Task<TableData<IngredientDTO>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<IngredientDTO> data = await ingredientService.GetAll(Constants.ingredientBaseUrl);
+        await Task.Delay(300, token);
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Ingredient_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "name_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Ingredient_Name);
+                break;
+            case "id_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Ingredient_Id);
+                break;
+        }
+
+        ingredients = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<IngredientDTO>() { TotalItems = totalItems, Items = ingredients };
+    }
+
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<AddIngredientDialog>("Add ingredient", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Successfully added ingredient!", Severity.Success);
+        }
+    }
+
+    private async Task DeleteUserAsync(int Ingredient_Id)
+    {
+        var parameters = new DialogParameters<DeleteIngredientDialog>
+        {
+            {x => x.ContentText, "Do you really want to delete these records? This process cannot be undone."},
+            {x => x.ButtonText, "Delete"},
+            {x => x.Color, Color.Error},
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = DialogService.Show<DeleteIngredientDialog>("Delete ingredient", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await ingredientService.Delete(Ingredient_Id, Constants.ingredientBaseUrl);
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("ingredient successfully deleled!", Severity.Error);
+        }
+    }
+
+
+    private void BackupItem(object ingredient)
+    {
+        elementBeforeEdit = new IngredientDTO
+            {
+                Ingredient_Id = ((IngredientDTO)ingredient).Ingredient_Id,
+                Ingredient_Name = ((IngredientDTO)ingredient).Ingredient_Name,
+            };
+    }
+
+    private void ItemHasBeenCommitted(object ingredient)
+    {
+        editEvents.Add($"Changes to ingredient {((IngredientDTO)ingredient).Ingredient_Name} committed");
+        ingredientService.Update(((IngredientDTO)ingredient), Constants.ingredientBaseUrl);
+        StateHasChanged();
+    }
+
+
+    private void ResetItemToOriginalValues(object ingredient)
+    {
+        ((IngredientDTO)ingredient).Ingredient_Name = elementBeforeEdit.Ingredient_Name;
+        editEvents.Add($"Editing of ingredient {((IngredientDTO)ingredient).Ingredient_Name} canceled");
+    }
+
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+}

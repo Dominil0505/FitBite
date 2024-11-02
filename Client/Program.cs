@@ -33,7 +33,7 @@ builder.Services.AddScoped<IUserRoles<Roles>, UserRolesService<Roles>>();
 // Allergy | Disease | Ingredient | Medication
 builder.Services.AddScoped<IGenericServiceInterface<AllergyDTO>, GenericServiceImplementation<AllergyDTO>>();
 builder.Services.AddScoped<IGenericServiceInterface<DiseaseDTO>, GenericServiceImplementation<DiseaseDTO>>();
-builder.Services.AddScoped<IGenericServiceInterface<Ingredient>, GenericServiceImplementation<Ingredient>>();
+builder.Services.AddScoped<IGenericServiceInterface<IngredientDTO>, GenericServiceImplementation<IngredientDTO>>();
 builder.Services.AddScoped<IGenericServiceInterface<MedicationDTO>, GenericServiceImplementation<MedicationDTO>>();
 
 
