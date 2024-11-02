@@ -90,6 +90,48 @@
     private int totalItems;
     private string searchString = null;
 
+
+    private async Task<TableData<AllergyDTO>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<AllergyDTO> data = await allergyService.GetAll(Constants.allergyBaseUrl);
+        await Task.Delay(300, token);
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Allergy_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "name_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Allergy_Name);
+                break;
+            case "id_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Allergy_Id);
+                break;
+        }
+
+        allergies = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<AllergyDTO>() { TotalItems = totalItems, Items = allergies };
+    }
+
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<AddAllergyDialog>("Add Allergy", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Successfully added allergy!", Severity.Success);
+        }
+    }
+
     private async Task DeleteUserAsync(int allergy_id)
     {
         var parameters = new DialogParameters<DeleteAllergyDialog>
@@ -97,7 +139,6 @@
             {x => x.ContentText, "Do you really want to delete these records? This process cannot be undone."},
             {x => x.ButtonText, "Delete"},
             {x => x.Color, Color.Error},
-            {x => x.allergy_id, allergy_id}
         };
 
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
@@ -137,47 +178,7 @@
         ((AllergyDTO)allergy).Allergy_Name = elementBeforeEdit.Allergy_Name;
         editEvents.Add($"Editing of allergy {((AllergyDTO)allergy).Allergy_Name} canceled");
     }
-
-    private async Task OpenDialogAsync()
-    {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var dialog = DialogService.Show<AddAllergyDialog>("Add Allergy", options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
-        {
-            await table.ReloadServerData();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
-            Snackbar.Add("Successfully added allergy!", Severity.Success);   
-        }
-    }
-
-    private async Task<TableData<AllergyDTO>> ServerReload(TableState state, CancellationToken token)
-    {
-        IEnumerable<AllergyDTO> data = await allergyService.GetAll(Constants.allergyBaseUrl);
-        await Task.Delay(300, token);
-        data = data.Where(element =>
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.Allergy_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }).ToArray();
-        totalItems = data.Count();
-        switch (state.SortLabel)
-        {
-            case "name_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Allergy_Name);
-                break;
-            case "id_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Allergy_Id);
-                break;
-        }
-
-        allergies = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        return new TableData<AllergyDTO>() { TotalItems = totalItems, Items = allergies };
-    }
+        
 
     private void OnSearch(string text)
     {

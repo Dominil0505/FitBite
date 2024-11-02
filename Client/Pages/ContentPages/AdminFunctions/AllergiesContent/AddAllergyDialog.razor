@@ -33,6 +33,11 @@
     {
         var result = await allergyService.Insert(Allergy, Constants.allergyBaseUrl);
 
+        if (!result.flag)
+        {
+            isUsed = true;
+            message = result.Message;
+        }
         if (result.flag)
         {
             MudDialog.Close(DialogResult.Ok(Allergy));
@@ -41,6 +46,7 @@
         {
             isUsed = true;
             message = result.Message;
+            StateHasChanged();
         }
     }
 }

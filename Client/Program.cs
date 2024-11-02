@@ -34,7 +34,7 @@ builder.Services.AddScoped<IUserRoles<Roles>, UserRolesService<Roles>>();
 builder.Services.AddScoped<IGenericServiceInterface<AllergyDTO>, GenericServiceImplementation<AllergyDTO>>();
 builder.Services.AddScoped<IGenericServiceInterface<DiseaseDTO>, GenericServiceImplementation<DiseaseDTO>>();
 builder.Services.AddScoped<IGenericServiceInterface<Ingredient>, GenericServiceImplementation<Ingredient>>();
-builder.Services.AddScoped<IGenericServiceInterface<Medication>, GenericServiceImplementation<Medication>>();
+builder.Services.AddScoped<IGenericServiceInterface<MedicationDTO>, GenericServiceImplementation<MedicationDTO>>();
 
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });

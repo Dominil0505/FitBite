@@ -1,5 +1,47 @@
-﻿<h3>AddMedicationDialog</h3>
+﻿
+<EditForm Model="Medication" OnValidSubmit="AddMedication">
+    <MudDialog>
+        <TitleContent>
+            <h2>Add Medication</h2>
+        </TitleContent>
+        <DialogContent>
+            @if (isUsed)
+            {
+                <MudAlert Severity="Severity.Error">@message</MudAlert>
+            }
+            <MudTextField T="string" Label="Medication name" Required="true" RequiredError="Medication name is required!" @bind-Value="Medication.Medication_Name" />
 
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
 @code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
 
+    private bool isUsed = false;
+    private string message = "";
+
+    private void Cancel() => MudDialog.Cancel();
+
+    MedicationDTO Medication = new();
+
+    async Task AddMedication()
+    {
+        var result = await medicationService.Insert(Medication, Constants.medicationBaseUrl);
+
+        if (result.flag)
+        {
+            MudDialog.Close(DialogResult.Ok(Medication));
+        }
+        else
+        {
+            isUsed = true;
+            message = result.Message;
+        }        
+    }
 }
+
