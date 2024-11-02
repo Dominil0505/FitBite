@@ -1,12 +1,13 @@
 ﻿using BaseLibrary.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServerLibrary.Repositories.Contracts;
-using System.Formats.Asn1;
 
 namespace Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthenticationController(IUserAccount accountInterface) : ControllerBase
     {
         [HttpPost("register")]
@@ -19,7 +20,7 @@ namespace Server.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsnyc(CustomLogin user)
+        public async Task<IActionResult> SignInAsync(CustomLogin user)
         {
             if (user == null)
                 return BadRequest("Model is empty");

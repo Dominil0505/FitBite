@@ -2,12 +2,7 @@
 using BaseLibrary.Responses;
 using ClientLibrary.Helpers;
 using ClientLibrary.Services.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ClientLibrary.Services.Implementations
 {
@@ -31,15 +26,19 @@ namespace ClientLibrary.Services.Implementations
             var httpClient = getHttpClient.GetPublicHttpClient();
             var result = await httpClient.PostAsJsonAsync($"{AuthUrl}/login", user);
 
-            if (result.IsSuccessStatusCode)
+            if (!result.IsSuccessStatusCode)
                 return new LoginResponse(false, "Error occured");
 
             return await result.Content.ReadFromJsonAsync<LoginResponse>();
         }
 
-        public Task<LoginResponse> RefreshTokenAsnyc(RefreshToken token)
+        public async Task<LoginResponse> RefreshTokenAsync(RefreshToken token)
         {
-            throw new NotImplementedException();
+            var httpClient = getHttpClient.GetPublicHttpClient();
+            var result = await httpClient.PostAsJsonAsync($"{AuthUrl}/register", token);
+            if (!result.IsSuccessStatusCode) return new LoginResponse(false, "Error occured");
+
+            return await result.Content.ReadFromJsonAsync<LoginResponse>()!;
         }
 
         public async Task<WeatherForecast[]> GetWeatherForecasts()
@@ -49,7 +48,5 @@ namespace ClientLibrary.Services.Implementations
 
             return result;
         }
-
-        
     }
 }

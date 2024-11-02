@@ -1,12 +1,6 @@
 ﻿using BaseLibrary.Entities;
-using DieticianApp.Models.Entities;
-using DieticianApp.Models.JoinTables;
+using BaseLibrary.EntitiesRelation;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServerLibrary.Data
 {

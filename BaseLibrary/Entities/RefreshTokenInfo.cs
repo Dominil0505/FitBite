@@ -1,4 +1,4 @@
-﻿using DieticianApp.Models.Entities;
+﻿using BaseLibrary.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

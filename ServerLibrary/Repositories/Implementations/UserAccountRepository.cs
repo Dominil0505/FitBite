@@ -1,22 +1,17 @@
 ﻿using BaseLibrary.DTOs;
 using BaseLibrary.Entities;
 using BaseLibrary.Responses;
-using DieticianApp.Models.Entities;
-using DieticianApp.Models.JoinTables;
+using BaseLibrary.EntitiesRelation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ServerLibrary.Data;
 using ServerLibrary.Helpers;
 using ServerLibrary.Repositories.Contracts;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ServerLibrary.Repositories.Implementations
 {
@@ -42,19 +37,19 @@ namespace ServerLibrary.Repositories.Implementations
             {
                 var role = await FindRole("Dietician");
                 await AddToDatabase(new Dieticians { User_Id = applicationUser.User_Id });
-                await AddUserRoles(applicationUser.User_Id, role.Role_Id);
+                await AddToDatabase( new User_Roles { UserId = applicationUser.User_Id, RoleId = role.Role_Id });
             }
             else if(user.Role == "Patient")
             {
                 var role = await FindRole("Patient");
                 await AddToDatabase(new Patients { User_Id = applicationUser.User_Id });
-                await AddUserRoles(applicationUser.User_Id, role.Role_Id);
+                await AddToDatabase( new User_Roles { UserId = applicationUser.User_Id, RoleId = role.Role_Id });
             }
             else if (user.Role == "Admin")
             {
                 var role = await FindRole("Admin");
                 await AddToDatabase(new Admins { User_Id = applicationUser.User_Id });
-                await AddUserRoles(applicationUser.User_Id, role.Role_Id);
+                await AddToDatabase( new User_Roles { UserId = applicationUser.User_Id, RoleId = role.Role_Id });
             }
             else
             {
@@ -154,13 +149,6 @@ namespace ServerLibrary.Repositories.Implementations
             var result = _context.Add(model);
             await _context.SaveChangesAsync();
             return (T)result.Entity;
-        }
-
-        private async Task AddUserRoles(int user_Id, int role_Id)
-        {
-            User_Roles user_roles = new User_Roles { UserId = user_Id, RoleId = role_Id };
-            _context.User_Roles.Add(user_roles);
-            await _context.SaveChangesAsync();
         }
 
         private async Task<Roles> FindRole(string roleName) => await _context.Roles.FirstOrDefaultAsync(_ => _.Role_Name == roleName);

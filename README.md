@@ -38,6 +38,13 @@
 - menu_patient(menu_id, patient_id)
 
 # Osztályok funkciók
+## Base library
+### Entites
+- Adatbázisban táblák szerepelnek benne
+###DTO-s
+- DTO-k
+### Responses
+- válaszok szereplenek benne, flaggel és message-el
 ## Server library
 ### Contracts/IUserAccount
     - Ez egy interface amiben létre van hozva 3 db funkció loginasnyc, createasnyc és refreshtokenasync
@@ -124,3 +131,15 @@ Ez az osztály leegyszerűsíti a local storage kezelését azáltal, hogy a tok
 - Hasznos funkció, amikor a felhasználó kijelentkezik, és törölni kell a tokenjét.
 ### Helpers/Serializations
 Ez az osztály megkönnyíti a JSON-alapú adatfeldolgozást az alkalmazásban, lehetővé téve az objektumok egyszerű és gyors átalakítását JSON stringekké és vissza. Az általános megközelítés rugalmassá teszi különböző típusú objektumok kezelésére.
+
+##Server
+###AuthenticationController
+- Az AuthenticationController felelős a felhasználói hitelesítéssel kapcsolatos műveletek kezeléséért az alkalmazásban. A következő API végpontokat tartalmazza:
+- [POST] api/Authentication/register: Egy új felhasználó regisztrációjához használt végpont. A Register típusú objektumot fogadja, amely tartalmazza az új felhasználói adatokat. Sikeres létrehozás esetén visszaadja a regisztráció eredményét.
+- [POST] api/Authentication/login: A bejelentkezéshez használt végpont, amely a CustomLogin objektumot várja. Sikeres hitelesítés esetén visszaadja a bejelentkezés eredményét, amely tartalmazhat egy érvényesített tokent.
+- [POST] api/Authentication/refresh-token: A token frissítésére szolgáló végpont, amely a RefreshToken típusú objektumot fogadja. Az új token sikeres generálása esetén visszaadja az eredményt.
+- Minden végpont biztosítja, hogy a fogadott modellek nem üresek; üres modellek esetén BadRequest választ küld vissza.
+###RolesController
+- A RolesController felelős a felhasználói szerepek kezeléséért az alkalmazásban. A következő API végpontot tartalmazza:
+- [GET] api/Roles/Roles: Ez a végpont lehetővé teszi a felhasználói szerepek lekérdezését. Az IUserRoles interfészen keresztül hívja meg a GetRolesAsync metódust, amely visszaadja az összes elérhető szerepet. A válasz sikeressége esetén 200 OK státusz kódot küld, valamint a szerepek listáját.
+- A controller a loggolás érdekében ILogger<RolesController> példányt is használ, amely lehetővé teszi az események naplózását az alkalmazás működése során.

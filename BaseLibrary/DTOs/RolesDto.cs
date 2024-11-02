@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BaseLibrary.DTOs
 {
-    public class Roles
+    public class RolesDto
     {
         public string? RoleName { get; set; }
     }
