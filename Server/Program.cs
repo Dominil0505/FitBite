@@ -1,3 +1,4 @@
+using BaseLibrary.DTOs;
 using BaseLibrary.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +56,7 @@ builder.Services.AddScoped<IGenericRepositoryInterface<Allergies>, AllergyReposi
 builder.Services.AddScoped<IGenericRepositoryInterface<Diseases>, DiseaseRepository>();
 builder.Services.AddScoped<IGenericRepositoryInterface<Ingredient>, IngredientRepository>();
 builder.Services.AddScoped<IGenericRepositoryInterface<Medication>, MedicationRepository>();
+builder.Services.AddScoped<IGenericRepositoryInterface<AddFoodsDTO>, FoodRepository>();
 
 builder.Services.AddCors(options =>
 {

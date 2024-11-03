@@ -9,7 +9,11 @@
             {
                 <MudAlert Severity="Severity.Error">@message</MudAlert>
             }
-            <MudTextField T="string" Label="Allergy name" Required="true" RequiredError="Allegy name is required!" @bind-Value="Ingredient.Ingredient_Name" />
+            <MudTextField T="string" Label="Ingredient name" Required="true" RequiredError="Ingredient name is required!" @bind-Value="Ingredient.Ingredient_Name" Class="mb-5"/>
+            <MudTextField T="double" Label="Calorie" Required="true" RequiredError="Calorie is required!" @bind-Value="Ingredient.Calorie" Class="mb-5" />
+            <MudTextField T="double" Label="Protein" Required="true" RequiredError="Protein is required!" @bind-Value="Ingredient.Protein" Class="mb-5" />
+            <MudTextField T="double" Label="Fat" Required="true" RequiredError="Fat is required!" @bind-Value="Ingredient.Fat" Class="mb-5" />
+            <MudTextField T="double" Label="Carbohydrate" Required="true" RequiredError="Carbohydrate is required!" @bind-Value="Ingredient.Carbohydrate" Class="mb-5" />
 
         </DialogContent>
         <DialogActions>
@@ -33,11 +37,6 @@
     {
         var result = await ingredientService.Insert(Ingredient, Constants.ingredientBaseUrl);
 
-        if (!result.flag)
-        {
-            isUsed = true;
-            message = result.Message;
-        }
         if (result.flag)
         {
             MudDialog.Close(DialogResult.Ok(Ingredient));

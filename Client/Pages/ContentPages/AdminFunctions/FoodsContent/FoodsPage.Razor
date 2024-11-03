@@ -1,2 +1,190 @@
 @page "/Foods"
-<h1>Foods</h1>
+@using Client.Pages.OtherPages
+
+<MudTable Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
+          CommitEditTooltip="Commit Edit"
+          RowEditPreview="BackupItem"
+          RowEditCancel="ResetItemToOriginalValues"
+          RowEditCommit="ItemHasBeenCommitted"
+          IsEditRowSwitchingBlocked="@blockSwitch"
+          ApplyButtonPosition="@applyButtonPosition"
+          EditButtonPosition="@editButtonPosition"
+          EditTrigger="@editTrigger"
+          FixedHeader="@fixed_header"
+          Loading="@loading"
+          ServerData="ServerReload"
+          @ref="table"
+          Height="@(fixed_header ?"710px":"")">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Food List</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudSpacer />
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add food" Size="Size.Medium" @onclick="OpenDialogAsync" />
+    </ToolBarContent>
+
+    <ColGroup>
+        @if (applyButtonPosition.DisplayApplyButtonAtStart() || (editButtonPosition.DisplayEditButtonAtStart() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+        <col style="width:50px;" />
+        <col style="width:50%;" />
+        @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() && editTrigger == TableEditTrigger.EditButton))
+        {
+            <col style="width:50px;" />
+        }
+    </ColGroup>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="id_field" T="AddFoodsDTO">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="AddFoodsDTO">Food Name</MudTableSortLabel></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.foods.Food_Id</MudTd>
+            <MudTd DataLabel="food Name">@context.foods.Food_Id</MudTd>
+            <MudTd><MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => await DeleteFoodAsnyc(@context.foods.Food_Id))" /></MudTd>
+        </RowTemplate>
+
+        <RowEditingTemplate>
+            <MudTd DataLabel="ID"> @context.foods.Food_Id </MudTd>
+            <MudTd DataLabel="food Name"> <MudTextField @bind-Value="context.foods.Food_Name" Required /> </MudTd>
+     </RowEditingTemplate>
+
+     <NoRecordsContent>
+         <MudText>No matching records found</MudText>
+     </NoRecordsContent>
+     <LoadingContent>
+         <MudText>Loading...</MudText>
+     </LoadingContent>
+     <PagerContent>
+         <MudTablePager />
+     </PagerContent>
+     <EditButtonContent Context="button">
+         <MudFab Color="Color.Info" Size="@Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+     </EditButtonContent>
+
+ </MudTable>
+
+ @code {
+    private List<string> editEvents = new();
+    private bool dense = false;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = false;
+    private bool fixed_header = true;
+    private bool loading = false;
+
+    private AddFoodsDTO selectedItem1 = null;
+    private AddFoodsDTO elementBeforeEdit;
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
+
+
+    private IEnumerable<AddFoodsDTO> allergies = new List<AddFoodsDTO>();
+    private MudTable<AddFoodsDTO> table;
+    private int totalItems;
+    private string searchString = null;
+
+
+    private async Task<TableData<AddFoodsDTO>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<AddFoodsDTO> data = await foodService.GetAll(Constants.foodBaseUrl);
+        await Task.Delay(300, token);
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.foods.Food_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "name_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.foods.Food_Name);
+                break;
+            case "id_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.foods.Food_Name);
+                break;
+        }
+
+        allergies = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<AddFoodsDTO>() { TotalItems = totalItems, Items = allergies };
+    }
+
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true};
+        var dialog = DialogService.Show<AddFoodDialog>("Add food", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Successfully added food!", Severity.Success);
+        }
+    }
+
+    private async Task DeleteFoodAsnyc(int food_id)
+    {
+        var parameters = new DialogParameters<DeleteDialog>
+        {
+            {x => x.ContentText, "Do you really want to delete these records? This process cannot be undone."},
+            {x => x.ButtonText, "Delete"},
+            {x => x.Color, Color.Error},
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = DialogService.Show<DeleteDialog>("Delete food", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await foodService.Delete(food_id, Constants.foodBaseUrl);
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Food successfully deleled!", Severity.Error);
+        }
+    }
+
+
+    private void BackupItem(object food)
+    {
+        // elementBeforeEdit = new AddFoodsDTO
+        //     {
+        //         foods.Food_Name = ((AddFoodsDTO)food).foods.Food_Name,
+        //         food_Name = ((AddFoodsDTO)food).food_Name,
+        //     };
+    }
+
+    private void ItemHasBeenCommitted(object food)
+    {
+        editEvents.Add($"Changes to food {((AddFoodsDTO)food).foods.Food_Name} committed");
+        foodService.Update(((AddFoodsDTO)food), Constants.foodBaseUrl);
+        StateHasChanged();
+    }
+
+
+    private void ResetItemToOriginalValues(object food)
+    {
+        ((AddFoodsDTO)food).foods.Food_Name = elementBeforeEdit.foods.Food_Name;
+        editEvents.Add($"Editing of food {((AddFoodsDTO)food).foods.Food_Name} canceled");
+    }
+
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+}

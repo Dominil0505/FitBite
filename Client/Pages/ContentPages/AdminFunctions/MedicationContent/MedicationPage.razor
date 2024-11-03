@@ -1,4 +1,5 @@
 @page "/Medications"
+@using Client.Pages.OtherPages
 
 <MudTable Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
           CommitEditTooltip="Commit Edit"
@@ -92,7 +93,7 @@
 
     private async Task DeleteUserAsync(int medication_id)
     {
-        var parameters = new DialogParameters<DeleteMedicationDialog>
+        var parameters = new DialogParameters<DeleteDialog>
         {
             {x => x.ContentText, "Do you really want to delete these records? This process cannot be undone."},
             {x => x.ButtonText, "Delete"},
@@ -100,7 +101,7 @@
         };
 
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var dialog = DialogService.Show<DeleteMedicationDialog>("Delete medication", parameters, options);
+        var dialog = DialogService.Show<DeleteDialog>("Delete medication", parameters, options);
 
         var result = await dialog.Result;
 

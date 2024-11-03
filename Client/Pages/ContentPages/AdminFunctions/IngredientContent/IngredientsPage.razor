@@ -1,4 +1,5 @@
 @page "/Ingredients"
+@using Client.Pages.OtherPages
 
 <MudTable Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
           CommitEditTooltip="Commit Edit"
@@ -29,8 +30,12 @@
         {
             <col style="width:50px;" />
         }
-        <col style="width:50px;" />
-        <col style="width:50%;" />
+        <col style="width:20%;" />
+        <col style="width:20%;" />
+        <col style="width:10%;" />
+        <col style="width:10%;" />
+        <col style="width:10%;" />
+        <col style="width:0%;" />
         @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() && editTrigger == TableEditTrigger.EditButton))
         {
             <col style="width:50px;" />
@@ -39,11 +44,16 @@
     <HeaderContent>
         <MudTh><MudTableSortLabel SortLabel="id_field" T="IngredientDTO">ID</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="name_field" T="IngredientDTO">ingredient Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="IngredientDTO">Calorie</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="IngredientDTO">Protein</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="IngredientDTO">Fat</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="IngredientDTO">Carbohydrate</MudTableSortLabel></MudTh>
         <MudTh></MudTh>
     </HeaderContent>
 
     <RowTemplate>
         <MudTd DataLabel="ID">@context.Ingredient_Id</MudTd>
+        <MudTd DataLabel="ID">@context.Ingredient_Name</MudTd>
         <MudTd DataLabel="ingredient Name">@context.Calorie</MudTd>
         <MudTd DataLabel="ingredient Name">@context.Protein</MudTd>
         <MudTd DataLabel="ingredient Name">@context.Fat</MudTd>
@@ -53,7 +63,11 @@
 
         <RowEditingTemplate>
             <MudTd DataLabel="ID"> @context.Ingredient_Id </MudTd>
-            <MudTd DataLabel="ingredient Name"> <MudTextField @bind-Value="context.Ingredient_Name" Required /> </MudTd>
+            <MudTd DataLabel="ingredient Name"> <MudTextField @bind-Value="context.Ingredient_Name" /> </MudTd>
+            <MudTd DataLabel="ingredient Name"><MudTextField @bind-Value="@context.Calorie" /></MudTd>
+            <MudTd DataLabel="ingredient Name"><MudTextField @bind-Value="@context.Protein" /></MudTd>
+            <MudTd DataLabel="ingredient Name"><MudTextField @bind-Value="@context.Fat" /></MudTd>
+            <MudTd DataLabel="ingredient Name"><MudTextField @bind-Value="@context.Carbohydrate" /></MudTd>
      </RowEditingTemplate>
 
      <NoRecordsContent>
@@ -137,7 +151,7 @@
 
     private async Task DeleteUserAsync(int Ingredient_Id)
     {
-        var parameters = new DialogParameters<DeleteIngredientDialog>
+        var parameters = new DialogParameters<DeleteDialog>
         {
             {x => x.ContentText, "Do you really want to delete these records? This process cannot be undone."},
             {x => x.ButtonText, "Delete"},
@@ -145,7 +159,7 @@
         };
 
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var dialog = DialogService.Show<DeleteIngredientDialog>("Delete ingredient", parameters, options);
+        var dialog = DialogService.Show<DeleteDialog>("Delete ingredient", parameters, options);
 
         var result = await dialog.Result;
 
@@ -154,7 +168,7 @@
             await ingredientService.Delete(Ingredient_Id, Constants.ingredientBaseUrl);
             await table.ReloadServerData();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
-            Snackbar.Add("ingredient successfully deleled!", Severity.Error);
+            Snackbar.Add("Ingredient successfully deleled!", Severity.Error);
         }
     }
 

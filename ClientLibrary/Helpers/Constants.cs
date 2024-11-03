@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ClientLibrary.Helpers
 {
@@ -11,5 +7,6 @@ namespace ClientLibrary.Helpers
         public const string diseaseBaseUrl = "api/Disease";
         public const string ingredientBaseUrl = "api/Ingredient";
         public const string medicationBaseUrl = "api/Medication";
+        public const string foodBaseUrl = "api/Foods";
     }
 }

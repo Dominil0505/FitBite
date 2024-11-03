@@ -1,0 +1,135 @@
+﻿<EditForm Model="Food" OnValidSubmit="AddFood">
+    <MudDialog Class="custom-dialog-width">
+        <TitleContent>
+            <h2>Add Food</h2>
+        </TitleContent>
+        <DialogContent>
+            @if (isUsed)
+            {
+                <MudAlert Severity="Severity.Error">@message</MudAlert>
+            }
+            <MudTextField T="string" Label="Food name" Required="true" RequiredError="Food name is required!" @bind-Value="Food.Food_Name" Class="mb-5" />
+            <MudTextField T="double" Label="Calorie" Required="true" RequiredError="Caloriee is required!" @bind-Value="totalCalories" Class="mb-5" ReadOnly="true" />
+            <MudTextField T="double" Label="Protein" Required="true" RequiredError="Proteinis required!" @bind-Value="@totalProtein" Class="mb-5" />
+            <MudTextField T="double" Label="Fat" Required="true" RequiredError="Fat is required!" @bind-Value="totalFat" Class="mb-5" />
+            <MudTextField T="double" Label="Carbohydrate" Required="true" RequiredError="Carbohydrate is required!" @bind-Value="totalCarbohydrate" Class="mb-5" />
+
+            <MudSelect T="string" Label="Select Allergies" 
+                MultiSelection="true" 
+                @bind-SelectedValues="selectedAllergies" 
+                Class="mb-5" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var allergy in allergies)
+                {
+                    <MudSelectItem T="string" Value="@allergy.Allergy_Name">@allergy.Allergy_Name</MudSelectItem>
+                }
+            </MudSelect> 
+
+            <MudSelect T="string" Label="Select Ingredients" MultiSelection="true"
+                       @bind-SelectedValues="selectedIngredients"
+                       AnchorOrigin="Origin.BottomCenter"
+                       @onchange="OnIngredientsChanged">
+                @foreach (var ingredient in ingredients)
+                {
+                    <MudSelectItem T="string" Value="@ingredient.Ingredient_Name">@ingredient.Ingredient_Name</MudSelectItem>
+                }
+            </MudSelect>
+
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm> 
+
+<MudSelect @bind-Value="stringValue" Label="Select fast-food" HelperText="String" Placeholder="Please Select" AdornmentIcon="@Icons.Material.Filled.Fastfood" AdornmentColor="Color.Primary">
+    @foreach (var allergy in allergies)
+    {
+        <MudSelectItem T="string" Value="@allergy.Allergy_Name">@allergy.Allergy_Name</MudSelectItem>
+    }
+</MudSelect>
+
+
+<div class="d-flex mud-width-full align-center mt-8">
+    <MudText Typo="Typo.subtitle1" Class="mr-2">Selected values: </MudText>
+    <MudChip T="string">@(stringValue ?? "Select fast-food")</MudChip>
+    @foreach (var a in selectedIngredients)
+    {
+        <MudChip T="string">@(a ?? "Select ing")</MudChip>
+
+        <MudChip T="double">
+            Total Calorie: @CalculateTotalCalories(a)
+        </MudChip>
+    }
+    
+</div>
+
+
+@code {
+
+    private double CalculateTotalCalories(string ingredientName)
+    {
+        var findIng = ingredients.FirstOrDefault(_ => _.Ingredient_Name == ingredientName);
+
+        return findIng != null ? findIng.Calorie : 0;
+    }
+
+
+    private string stringValue { get; set; }    
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private bool isUsed = false;
+    private string message = "";
+
+    private void Cancel() => MudDialog.Cancel();
+
+    AddFoodsDTO Food = new();
+
+    private List<AllergyDTO> allergies = new List<AllergyDTO>();
+    private List<IngredientDTO> ingredients = new List<IngredientDTO>();
+
+    private IEnumerable<string> selectedAllergies { get; set; } = new HashSet<string>();
+    private IEnumerable<string> selectedIngredients { get; set; } = new HashSet<string>();
+
+    private double totalCalories = 0;
+    private double totalProtein = 0;
+    private double totalFat = 0;
+    private double totalCarbohydrate = 0;
+
+    protected async override Task OnInitializedAsync()
+    {
+        allergies = await allergyService.GetAll(Constants.allergyBaseUrl);
+        ingredients = await ingredientService.GetAll(Constants.ingredientBaseUrl);
+
+        StateHasChanged();
+    }
+
+    async Task AddFood()
+    {
+        var result = await foodService.Insert(Food, Constants.foodBaseUrl);
+
+        if (!result.flag)
+        {
+            isUsed = true;
+            message = result.Message;
+        }
+        if (result.flag)
+        {
+            MudDialog.Close(DialogResult.Ok(Food));
+        }
+        else
+        {
+            isUsed = true;
+            message = result.Message;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnIngredientsChanged()
+    {
+
+        totalCalories = 2;
+    }
+}

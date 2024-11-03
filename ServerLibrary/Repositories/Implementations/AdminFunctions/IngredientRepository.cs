@@ -25,6 +25,14 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
 
         public async Task<GeneralResponse> Insert(Ingredient item)
         {
+            if (!await CheckName(item.Ingredient_Name)) return new GeneralResponse(false, "Ingredient is already added");
+            _context.Ingredients.Add(item);
+            await Commit();
+            return Success();
+        }
+
+        public async Task<GeneralResponse> Update(Ingredient item)
+        {
             var ingredient = await _context.Ingredients.FindAsync(item.Ingredient_Id);
             if (ingredient is null) return NotFound();
 
@@ -38,12 +46,7 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
             return Success();
         }
 
-        public Task<GeneralResponse> Update(Ingredient item)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static GeneralResponse NotFound() => new(false, "Sorry, allergies not found");
+        private static GeneralResponse NotFound() => new(false, "Sorry, Ingredient not found");
         private static GeneralResponse Success() => new (true, "Process Completed");
         private async Task Commit() => await _context.SaveChangesAsync();
 

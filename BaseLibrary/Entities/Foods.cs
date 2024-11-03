@@ -10,11 +10,11 @@ namespace BaseLibrary.Entities
     {
         [Key]
         public int Food_Id { get; set; }
-        public string? Food_Name { get; set; }
-        public double? Calorie { get; set; }
-        public double? Protein { get; set; }
-        public double? Fat { get; set; }
-        public double? Carbohydrate { get; set; }
+        public string Food_Name { get; set; }
+        public double Calorie { get; set; }
+        public double Protein { get; set; }
+        public double Fat { get; set; }
+        public double Carbohydrate { get; set; }
 
         // Relations N:M
         public virtual ICollection<Food_Ingredients> FoodIngredients { get; set; } = new List<Food_Ingredients>();
