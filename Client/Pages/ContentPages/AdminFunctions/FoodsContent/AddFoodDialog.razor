@@ -9,7 +9,7 @@
                 <MudAlert Severity="Severity.Error">@message</MudAlert>
             }
             <MudTextField T="string" Label="Food name" Required="true" RequiredError="Food name is required!" @bind-Value="Food.Food_Name" Class="mb-5" />
-            <MudTextField T="double" Label="Calorie" Required="true" RequiredError="Caloriee is required!" @bind-Value="totalCalories" Class="mb-5" ReadOnly="true" />
+            <MudTextField T="double" Label="Calorie" Required="true" RequiredError="Caloriee is required!" Value="CalcCalorie()" Class="mb-5" ReadOnly="true" />
             <MudTextField T="double" Label="Protein" Required="true" RequiredError="Proteinis required!" @bind-Value="@totalProtein" Class="mb-5" />
             <MudTextField T="double" Label="Fat" Required="true" RequiredError="Fat is required!" @bind-Value="totalFat" Class="mb-5" />
             <MudTextField T="double" Label="Carbohydrate" Required="true" RequiredError="Carbohydrate is required!" @bind-Value="totalCarbohydrate" Class="mb-5" />
@@ -24,13 +24,18 @@
                 }
             </MudSelect> 
 
+            @* SelectedValuesChanged="OnSelectedValuesChanged" *@
             <MudSelect T="string" Label="Select Ingredients" MultiSelection="true"
                        @bind-SelectedValues="selectedIngredients"
                        AnchorOrigin="Origin.BottomCenter"
-                       @onchange="OnIngredientsChanged">
+                       @onchange="OnIngredientsChanged"
+            >
                 @foreach (var ingredient in ingredients)
                 {
-                    <MudSelectItem T="string" Value="@ingredient.Ingredient_Name">@ingredient.Ingredient_Name</MudSelectItem>
+                    <MudSelectItem T="string" Value="@ingredient.Ingredient_Name">
+                        @ingredient.Ingredient_Name
+                    </MudSelectItem>
+                    
                 }
             </MudSelect>
 
@@ -42,39 +47,15 @@
     </MudDialog>
 </EditForm> 
 
-<MudSelect @bind-Value="stringValue" Label="Select fast-food" HelperText="String" Placeholder="Please Select" AdornmentIcon="@Icons.Material.Filled.Fastfood" AdornmentColor="Color.Primary">
-    @foreach (var allergy in allergies)
-    {
-        <MudSelectItem T="string" Value="@allergy.Allergy_Name">@allergy.Allergy_Name</MudSelectItem>
-    }
-</MudSelect>
-
-
 <div class="d-flex mud-width-full align-center mt-8">
     <MudText Typo="Typo.subtitle1" Class="mr-2">Selected values: </MudText>
     <MudChip T="string">@(stringValue ?? "Select fast-food")</MudChip>
-    @foreach (var a in selectedIngredients)
-    {
-        <MudChip T="string">@(a ?? "Select ing")</MudChip>
-
-        <MudChip T="double">
-            Total Calorie: @CalculateTotalCalories(a)
-        </MudChip>
-    }
+    <MudChip T="double">@(CalcCalorie())</MudChip>
     
 </div>
 
 
 @code {
-
-    private double CalculateTotalCalories(string ingredientName)
-    {
-        var findIng = ingredients.FirstOrDefault(_ => _.Ingredient_Name == ingredientName);
-
-        return findIng != null ? findIng.Calorie : 0;
-    }
-
-
     private string stringValue { get; set; }    
 
     [CascadingParameter]
@@ -97,6 +78,30 @@
     private double totalProtein = 0;
     private double totalFat = 0;
     private double totalCarbohydrate = 0;
+
+    private double CalcCalorie()
+    {
+        foreach (var ingredientName in selectedIngredients)
+        {
+            bool selected = false;
+            var findIng = ingredients.FirstOrDefault(_ => _.Ingredient_Name == ingredientName);
+            if (findIng != null)
+            {
+                if (ingredientName.Contains(findIng.Ingredient_Name))
+                {
+                    selected = true;
+                    Console.WriteLine(selected);
+                }
+                else
+                {
+                    selected = false;
+                    Console.WriteLine(selected);
+                }
+            }
+        }
+
+        return totalCalories;
+    }
 
     protected async override Task OnInitializedAsync()
     {
