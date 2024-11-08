@@ -38,21 +38,33 @@
         }
     </ColGroup>
     <HeaderContent>
-        <MudTh><MudTableSortLabel SortLabel="id_field" T="AddFoodsDTO">ID</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="name_field" T="AddFoodsDTO">Food Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="id_field" T="FoodsDTO">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="FoodsDTO">Food Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="calorie_field" T="FoodsDTO">Calorie</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="protein_field" T="FoodsDTO">Protein</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="fat_field" T="FoodsDTO">Fat</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="carbohydrate_field" T="FoodsDTO">Carbohydrate</MudTableSortLabel></MudTh>
         <MudTh></MudTh>
     </HeaderContent>
 
     <RowTemplate>
-        <MudTd DataLabel="ID">@context.foods.Food_Id</MudTd>
-            <MudTd DataLabel="food Name">@context.foods.Food_Id</MudTd>
-            <MudTd><MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => await DeleteFoodAsnyc(@context.foods.Food_Id))" /></MudTd>
+        <MudTd DataLabel="ID">@context.Food_Id</MudTd>
+            <MudTd DataLabel="Food Name">@context.Food_Name</MudTd>
+            <MudTd DataLabel="Calorie">@context.Calorie</MudTd>
+            <MudTd DataLabel="Protein">@context.Protein</MudTd>
+            <MudTd DataLabel="Fat">@context.Fat</MudTd>
+            <MudTd DataLabel="Carbohydrate">@context.Carbohydrate</MudTd>
+            <MudTd><MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => await DeleteFoodAsnyc(@context.Food_Id))" /></MudTd>
         </RowTemplate>
 
         <RowEditingTemplate>
-            <MudTd DataLabel="ID"> @context.foods.Food_Id </MudTd>
-            <MudTd DataLabel="food Name"> <MudTextField @bind-Value="context.foods.Food_Name" Required /> </MudTd>
-     </RowEditingTemplate>
+            <MudTd DataLabel="ID"> @context.Food_Id </MudTd>
+            <MudTd DataLabel="food Name"> <MudTextField @bind-Value="context.Food_Name" Required /> </MudTd>
+         <MudTd DataLabel="Calorie"> @context.Calorie </MudTd>
+         <MudTd DataLabel="Protein"> @context.Protein </MudTd>
+         <MudTd DataLabel="Fat"> @context.Fat </MudTd>
+         <MudTd DataLabel="Carbohydrate"> @context.Carbohydrate </MudTd>
+        </RowEditingTemplate>
 
      <NoRecordsContent>
          <MudText>No matching records found</MudText>
@@ -79,28 +91,28 @@
     private bool fixed_header = true;
     private bool loading = false;
 
-    private AddFoodsDTO selectedItem1 = null;
-    private AddFoodsDTO elementBeforeEdit;
+    private FoodsDTO selectedItem1 = null;
+    private FoodsDTO elementBeforeEdit;
     private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
     private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
     private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
 
 
-    private IEnumerable<AddFoodsDTO> allergies = new List<AddFoodsDTO>();
-    private MudTable<AddFoodsDTO> table;
+    private IEnumerable<FoodsDTO> allergies = new List<FoodsDTO>();
+    private MudTable<FoodsDTO> table;
     private int totalItems;
     private string searchString = null;
 
 
-    private async Task<TableData<AddFoodsDTO>> ServerReload(TableState state, CancellationToken token)
+    private async Task<TableData<FoodsDTO>> ServerReload(TableState state, CancellationToken token)
     {
-        IEnumerable<AddFoodsDTO> data = await foodService.GetAll(Constants.foodBaseUrl);
+        IEnumerable<FoodsDTO> data = await foodService.GetAll(Constants.foodBaseUrl);
         await Task.Delay(300, token);
         data = data.Where(element =>
         {
             if (string.IsNullOrWhiteSpace(searchString))
                 return true;
-            if (element.foods.Food_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            if (element.Food_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
             return false;
         }).ToArray();
@@ -108,20 +120,20 @@
         switch (state.SortLabel)
         {
             case "name_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.foods.Food_Name);
+                data = data.OrderByDirection(state.SortDirection, o => o.Food_Name);
                 break;
             case "id_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.foods.Food_Name);
+                data = data.OrderByDirection(state.SortDirection, o => o.Food_Name);
                 break;
         }
 
         allergies = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        return new TableData<AddFoodsDTO>() { TotalItems = totalItems, Items = allergies };
+        return new TableData<FoodsDTO>() { TotalItems = totalItems, Items = allergies };
     }
 
     private async Task OpenDialogAsync()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true};
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true};
         var dialog = DialogService.Show<AddFoodDialog>("Add food", options);
         var result = await dialog.Result;
 
@@ -159,25 +171,27 @@
 
     private void BackupItem(object food)
     {
-        // elementBeforeEdit = new AddFoodsDTO
-        //     {
-        //         foods.Food_Name = ((AddFoodsDTO)food).foods.Food_Name,
-        //         food_Name = ((AddFoodsDTO)food).food_Name,
-        //     };
+        elementBeforeEdit = new FoodsDTO
+            {
+                Food_Id = ((FoodsDTO)food).Food_Id,
+                Food_Name = ((FoodsDTO)food).Food_Name,
+                Calorie = ((FoodsDTO)food).Calorie,
+                Protein = ((FoodsDTO)food).Protein,
+                Fat = ((FoodsDTO)food).Fat,
+                Carbohydrate = ((FoodsDTO)food).Carbohydrate
+            };
     }
 
     private void ItemHasBeenCommitted(object food)
     {
-        editEvents.Add($"Changes to food {((AddFoodsDTO)food).foods.Food_Name} committed");
-        foodService.Update(((AddFoodsDTO)food), Constants.foodBaseUrl);
+        foodService.Update(((FoodsDTO)food), Constants.foodBaseUrl);
         StateHasChanged();
     }
 
 
     private void ResetItemToOriginalValues(object food)
     {
-        ((AddFoodsDTO)food).foods.Food_Name = elementBeforeEdit.foods.Food_Name;
-        editEvents.Add($"Editing of food {((AddFoodsDTO)food).foods.Food_Name} canceled");
+        ((FoodsDTO)food).Food_Name = elementBeforeEdit.Food_Name;
     }
 
 

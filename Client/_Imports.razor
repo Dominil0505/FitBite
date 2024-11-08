@@ -1,5 +1,6 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using BaseLibrary.DTOs.AdminFunctionDTOs
 @using BaseLibrary.Entities
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
@@ -16,6 +17,8 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
+@* Mudextension *@
+@using MudExtensions
 
 @using BaseLibrary.DTOs
 @using ClientLibrary.Helpers
@@ -30,9 +33,9 @@
 @* User roles for registration page *@
 @inject IUserRoles<Roles> userRoleService
 
-@* // Allergy | Disease | Ingredient | Medication *@
+@* Allergy | Disease | Ingredient | Medication | Food *@
 @inject IGenericServiceInterface<AllergyDTO> allergyService
 @inject IGenericServiceInterface<DiseaseDTO> diseaseService
 @inject IGenericServiceInterface<IngredientDTO> ingredientService
 @inject IGenericServiceInterface<MedicationDTO> medicationService
-@inject IGenericServiceInterface<AddFoodsDTO> foodService
+@inject IGenericServiceInterface<FoodsDTO> foodService

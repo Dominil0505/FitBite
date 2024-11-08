@@ -1,4 +1,4 @@
-
+using BaseLibrary.DTOs.AdminFunctionDTOs;
 using BaseLibrary.Entities;
 using BaseLibrary.Responses;
 using Microsoft.EntityFrameworkCore;
@@ -7,31 +7,44 @@ using ServerLibrary.Repositories.Contracts;
 
 namespace ServerLibrary.Repositories.Implementations.AdminFunctions
 {
-    public class IngredientRepository(AppDbContext _context) : IGenericRepositoryInterface<Ingredient>
+    public class IngredientRepository(AppDbContext _context) : IGenericRepositoryInterface<IngredientDTO>
     {
-        public async Task<GeneralResponse> DeleteById(int id)
+        public async Task<List<IngredientDTO>> GetAll()
         {
-            var ingredient = await _context.Ingredients.FindAsync(id);
-            if (ingredient is null) return NotFound();
+            var ingredients = await _context.Ingredients.ToListAsync();
 
-            _context.Ingredients.Remove(ingredient);
-            await Commit();
-            return Success();
+            var ingredientsDTOList = ingredients.Select(i => new IngredientDTO
+            {
+                Ingredient_Id = i.Ingredient_Id,
+                Ingredient_Name = i.Ingredient_Name,
+                Calorie = i.Calorie,
+                Protein = i.Protein,
+                Fat = i.Fat,
+                Carbohydrate = i.Carbohydrate,
+            }).ToList();
+
+            return ingredientsDTOList;
         }
 
-        public async Task<List<Ingredient>> GetAll() => await _context.Ingredients.ToListAsync();
-
-        public async Task<Ingredient> GetById(int id) => await _context.Ingredients.FindAsync(id);
-
-        public async Task<GeneralResponse> Insert(Ingredient item)
+        public async Task<GeneralResponse> Insert(IngredientDTO item)
         {
             if (!await CheckName(item.Ingredient_Name)) return new GeneralResponse(false, "Ingredient is already added");
-            _context.Ingredients.Add(item);
+
+            var newIngredient = new Ingredient
+            {
+                Ingredient_Name = item.Ingredient_Name,
+                Calorie = item.Calorie,
+                Protein = item.Protein,
+                Fat = item.Fat,
+                Carbohydrate = item.Carbohydrate
+            };
+
+            _context.Ingredients.Add(newIngredient);
             await Commit();
             return Success();
         }
 
-        public async Task<GeneralResponse> Update(Ingredient item)
+        public async Task<GeneralResponse> Update(IngredientDTO item)
         {
             var ingredient = await _context.Ingredients.FindAsync(item.Ingredient_Id);
             if (ingredient is null) return NotFound();
@@ -44,6 +57,33 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
 
             await Commit();
             return Success();
+        }
+
+        public async Task<GeneralResponse> DeleteById(int id)
+        {
+            var ingredient = await _context.Ingredients.FindAsync(id);
+            if (ingredient is null) return NotFound();
+
+            _context.Ingredients.Remove(ingredient);
+            await Commit();
+            return Success();
+        }
+
+        public async Task<IngredientDTO> GetById(int id) 
+        {
+            var ingredient = await _context.Ingredients.FindAsync(id);
+
+            var ingredientDTO = new IngredientDTO
+            {
+                Ingredient_Id = ingredient.Ingredient_Id,
+                Ingredient_Name = ingredient.Ingredient_Name,
+                Calorie = ingredient.Calorie,
+                Protein = ingredient.Protein,
+                Fat = ingredient.Fat,
+                Carbohydrate = ingredient.Carbohydrate
+            };
+
+            return ingredientDTO;
         }
 
         private static GeneralResponse NotFound() => new(false, "Sorry, Ingredient not found");

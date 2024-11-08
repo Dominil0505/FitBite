@@ -1,5 +1,5 @@
 ﻿<EditForm Model="Food" OnValidSubmit="AddFood">
-    <MudDialog Class="custom-dialog-width">
+    <MudDialog>
         <TitleContent>
             <h2>Add Food</h2>
         </TitleContent>
@@ -8,12 +8,18 @@
             {
                 <MudAlert Severity="Severity.Error">@message</MudAlert>
             }
-            <MudTextField T="string" Label="Food name" Required="true" RequiredError="Food name is required!" @bind-Value="Food.Food_Name" Class="mb-5" />
-            <MudTextField T="double" Label="Calorie" Required="true" RequiredError="Caloriee is required!" Value="CalcCalorie()" Class="mb-5" ReadOnly="true" />
-            <MudTextField T="double" Label="Protein" Required="true" RequiredError="Proteinis required!" @bind-Value="@totalProtein" Class="mb-5" />
-            <MudTextField T="double" Label="Fat" Required="true" RequiredError="Fat is required!" @bind-Value="totalFat" Class="mb-5" />
-            <MudTextField T="double" Label="Carbohydrate" Required="true" RequiredError="Carbohydrate is required!" @bind-Value="totalCarbohydrate" Class="mb-5" />
-
+            <MudTextField T="string" Label="Food name" Required="true" RequiredError="Food name is required!" @bind-Value="Food.Food_Name" Class="mb-5"/>
+           <MudPaper Class="pa-4 align-start d-flex" Outlined="true">
+                <MudSpacer />
+                <MudTextField T="double" Label="Protein" Required="true" RequiredError="Proteinis required!" @bind-Value="@totalProtein" Class="mb-5" ReadOnly="true" />
+                <MudSpacer/>
+                <MudTextField T="double" Label="Fat" Required="true" RequiredError="Fat is required!" @bind-Value="totalFat" Class="mb-5" ReadOnly="true" />
+                <MudSpacer />
+                <MudTextField T="double" Label="Carbohydrate" Required="true" RequiredError="Carbohydrate is required!" @bind-Value="totalCarbohydrate" Class="mb-5" ReadOnly="true" />
+                <MudSpacer />
+                <MudTextField T="double" Label="Calorie" Required="true" RequiredError="Caloriee is required!" @bind-Value="totalCalories" Class="mb-5" ReadOnly="true" />
+           </MudPaper>
+                    
             <MudSelect T="string" Label="Select Allergies" 
                 MultiSelection="true" 
                 @bind-SelectedValues="selectedAllergies" 
@@ -24,20 +30,18 @@
                 }
             </MudSelect> 
 
-            @* SelectedValuesChanged="OnSelectedValuesChanged" *@
             <MudSelect T="string" Label="Select Ingredients" MultiSelection="true"
-                       @bind-SelectedValues="selectedIngredients"
+                       SelectedValuesChanged="@(values => { selectedIngredients = values; CalcCalorie(); })"
                        AnchorOrigin="Origin.BottomCenter"
-                       @onchange="OnIngredientsChanged"
-            >
+            Class="mb-5">
                 @foreach (var ingredient in ingredients)
                 {
                     <MudSelectItem T="string" Value="@ingredient.Ingredient_Name">
                         @ingredient.Ingredient_Name
                     </MudSelectItem>
-                    
                 }
             </MudSelect>
+            
 
         </DialogContent>
         <DialogActions>
@@ -46,14 +50,6 @@
         </DialogActions>
     </MudDialog>
 </EditForm> 
-
-<div class="d-flex mud-width-full align-center mt-8">
-    <MudText Typo="Typo.subtitle1" Class="mr-2">Selected values: </MudText>
-    <MudChip T="string">@(stringValue ?? "Select fast-food")</MudChip>
-    <MudChip T="double">@(CalcCalorie())</MudChip>
-    
-</div>
-
 
 @code {
     private string stringValue { get; set; }    
@@ -66,7 +62,7 @@
 
     private void Cancel() => MudDialog.Cancel();
 
-    AddFoodsDTO Food = new();
+    FoodsDTO Food = new();
 
     private List<AllergyDTO> allergies = new List<AllergyDTO>();
     private List<IngredientDTO> ingredients = new List<IngredientDTO>();
@@ -79,30 +75,6 @@
     private double totalFat = 0;
     private double totalCarbohydrate = 0;
 
-    private double CalcCalorie()
-    {
-        foreach (var ingredientName in selectedIngredients)
-        {
-            bool selected = false;
-            var findIng = ingredients.FirstOrDefault(_ => _.Ingredient_Name == ingredientName);
-            if (findIng != null)
-            {
-                if (ingredientName.Contains(findIng.Ingredient_Name))
-                {
-                    selected = true;
-                    Console.WriteLine(selected);
-                }
-                else
-                {
-                    selected = false;
-                    Console.WriteLine(selected);
-                }
-            }
-        }
-
-        return totalCalories;
-    }
-
     protected async override Task OnInitializedAsync()
     {
         allergies = await allergyService.GetAll(Constants.allergyBaseUrl);
@@ -113,6 +85,13 @@
 
     async Task AddFood()
     {
+        Food.selectedAllergy = selectedAllergies.ToList();
+        Food.selectedIngredients = selectedIngredients.ToList();
+        Food.Calorie = totalCalories;
+        Food.Protein = totalProtein;
+        Food.Fat = totalFat;
+        Food.Carbohydrate = totalCarbohydrate;
+
         var result = await foodService.Insert(Food, Constants.foodBaseUrl);
 
         if (!result.flag)
@@ -132,9 +111,27 @@
         }
     }
 
-    private async Task OnIngredientsChanged()
+    private void CalcCalorie()
     {
+        totalCalories = 0;
+        totalProtein = 0;
+        totalFat = 0;
+        totalCarbohydrate = 0;
 
-        totalCalories = 2;
+        foreach (var ingredientName in selectedIngredients)
+        {
+
+            Console.WriteLine(ingredientName);
+            var findIng = ingredients.FirstOrDefault(_ => _.Ingredient_Name == ingredientName);
+
+            if (findIng != null)
+            {
+                totalCalories += findIng.Calorie;
+                totalProtein += findIng.Protein;
+                totalFat += findIng.Fat;
+                totalCarbohydrate += findIng.Carbohydrate;
+            }
+        }
+
     }
 }

@@ -8,6 +8,14 @@ namespace ClientLibrary.Services.Implementations
     public class GenericServiceImplementation<T>(GetHttpClient getHttpClient) : IGenericServiceInterface<T>
     {
 
+        // Read All
+        public async Task<List<T>> GetAll(string baseUrl)
+        {
+            var httpClient = await getHttpClient.GetPrivateHttpClient();
+            var result = await httpClient.GetFromJsonAsync<List<T>>($"{baseUrl}/all");
+            return result!;
+        }
+
         // Create
         public async Task<GeneralResponse> Insert(T item, string baseUrl)
         {
@@ -17,13 +25,6 @@ namespace ClientLibrary.Services.Implementations
             return result!;
         }
 
-        // Read All
-        public async Task<List<T>> GetAll(string baseUrl)
-        {
-            var httpClient = await getHttpClient.GetPrivateHttpClient();
-            var result = await httpClient.GetFromJsonAsync<List<T>>($"{baseUrl}/all");
-            return result!;
-        }
 
         // Update
         public async Task<GeneralResponse> Update(T item, string baseUrl)

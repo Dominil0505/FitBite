@@ -1,13 +1,51 @@
 using BaseLibrary.Entities;
 using BaseLibrary.Responses;
+using BaseLibrary.DTOs.AdminFunctionDTOs;
 using Microsoft.EntityFrameworkCore;
 using ServerLibrary.Data;
 using ServerLibrary.Repositories.Contracts;
 
 namespace ServerLibrary.Repositories.Implementations.AdminFunctions
 {
-    public class DiseaseRepository(AppDbContext _context) : IGenericRepositoryInterface<Diseases>
+    public class DiseaseRepository(AppDbContext _context) : IGenericRepositoryInterface<DiseaseDTO>
     {
+        public async Task<List<DiseaseDTO>> GetAll()
+        {
+            var diseases = await _context.Diseases.ToListAsync();
+
+            var diseaseDTOList = diseases.Select(d => new DiseaseDTO
+            {
+                Disease_Id = d.Disease_Id,
+                Disease_Name = d.Disease_Name
+            }).ToList();
+
+            return diseaseDTOList;
+        }
+
+        public async Task<GeneralResponse> Insert(DiseaseDTO item)
+        {
+            if (!await CheckName(item.Disease_Name)) return new GeneralResponse(false, "Disease is already added");
+
+            var newDisease = new Diseases
+            {
+                Disease_Name = item.Disease_Name,
+            };
+
+            _context.Diseases.Add(newDisease);
+            await Commit();
+            return Success();
+        }
+
+        public async Task<GeneralResponse> Update(DiseaseDTO item)
+        {
+            var disease = await _context.Diseases.FindAsync(item.Disease_Id);
+            if (disease is null) return NotFound();
+
+            disease.Disease_Name = item.Disease_Name;
+            await Commit();
+            return Success();
+        }
+
         public async Task<GeneralResponse> DeleteById(int id)
         {
             var disease = await _context.Diseases.FindAsync(id);
@@ -18,29 +56,20 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
             return Success();
         }
 
-        public async Task<List<Diseases>> GetAll() => await _context.Diseases.ToListAsync();
-
-        public async Task<Diseases> GetById(int id) => await _context.Diseases.FindAsync(id);
-
-        public async Task<GeneralResponse> Insert(Diseases item)
+        public async Task<DiseaseDTO> GetById(int id) 
         {
-            if(!await CheckName(item.Disease_Name)) return new GeneralResponse(false, "Allergy is already added");
-            _context.Diseases.Add(item);
-            await Commit();
-            return Success();
+            var disease = await _context.Diseases.FindAsync(id);
+
+            var diseaseDTO = new DiseaseDTO
+            {
+                Disease_Id = disease.Disease_Id,
+                Disease_Name = disease.Disease_Name
+            };
+
+            return diseaseDTO;
         }
 
-        public async Task<GeneralResponse> Update(Diseases item)
-        {
-            var disease = await _context.Diseases.FindAsync(item.Disease_Id);
-            if (disease is null) return NotFound();
-
-            disease.Disease_Name = item.Disease_Name;
-            await Commit();
-            return Success();
-        }
-
-        private static GeneralResponse NotFound() => new(false, "Sorry, allergies not found");
+        private static GeneralResponse NotFound() => new(false, "Sorry, disease not found");
         private static GeneralResponse Success() => new (true, "Process Completed");
         private async Task Commit() => await _context.SaveChangesAsync();
 

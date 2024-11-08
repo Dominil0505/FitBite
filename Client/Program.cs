@@ -1,4 +1,4 @@
-using BaseLibrary.DTOs;
+using BaseLibrary.DTOs.AdminFunctionDTOs;
 using BaseLibrary.Entities;
 using Blazored.LocalStorage;
 using Client;
@@ -35,7 +35,7 @@ builder.Services.AddScoped<IGenericServiceInterface<AllergyDTO>, GenericServiceI
 builder.Services.AddScoped<IGenericServiceInterface<DiseaseDTO>, GenericServiceImplementation<DiseaseDTO>>();
 builder.Services.AddScoped<IGenericServiceInterface<IngredientDTO>, GenericServiceImplementation<IngredientDTO>>();
 builder.Services.AddScoped<IGenericServiceInterface<MedicationDTO>, GenericServiceImplementation<MedicationDTO>>();
-builder.Services.AddScoped<IGenericServiceInterface<AddFoodsDTO>, GenericServiceImplementation<AddFoodsDTO>>();
+builder.Services.AddScoped<IGenericServiceInterface<FoodsDTO>, GenericServiceImplementation<FoodsDTO>>();
 
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
