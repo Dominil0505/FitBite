@@ -32,6 +32,8 @@
         }
         <col style="width:50px;" />
         <col style="width:50%;" />
+        <col style="width:50%;" />
+        <col style="width:50%;" />
         @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() && editTrigger == TableEditTrigger.EditButton))
         {
             <col style="width:50px;" />
@@ -40,6 +42,8 @@
     <HeaderContent>
         <MudTh><MudTableSortLabel SortLabel="id_field" T="FoodsDTO">ID</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="name_field" T="FoodsDTO">Food Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ingredients" T="FoodsDTO">Ingredients</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="allergy" T="FoodsDTO">Allergy</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="calorie_field" T="FoodsDTO">Calorie</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="protein_field" T="FoodsDTO">Protein</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="fat_field" T="FoodsDTO">Fat</MudTableSortLabel></MudTh>
@@ -50,20 +54,32 @@
     <RowTemplate>
         <MudTd DataLabel="ID">@context.Food_Id</MudTd>
             <MudTd DataLabel="Food Name">@context.Food_Name</MudTd>
-            <MudTd DataLabel="Calorie">@context.Calorie</MudTd>
-            <MudTd DataLabel="Protein">@context.Protein</MudTd>
-            <MudTd DataLabel="Fat">@context.Fat</MudTd>
-            <MudTd DataLabel="Carbohydrate">@context.Carbohydrate</MudTd>
-            <MudTd><MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => await DeleteFoodAsnyc(@context.Food_Id))" /></MudTd>
-        </RowTemplate>
+        <MudTd DataLabel="Ingredient">
+            @foreach (var ingredient in context.selectedIngredients!)
+            {
+                <div>@ingredient</div>
+            }
+        </MudTd>
+        <MudTd DataLabel="Allergy">
+            @foreach (var allergy in context.selectedAllergy!)
+            {
+                <div>@allergy</div>
+            }
+        </MudTd>
+        <MudTd DataLabel="Calorie">@context.Calorie.ToString("F2")</MudTd>
+        <MudTd DataLabel="Protein">@context.Protein.ToString("F2")</MudTd>
+        <MudTd DataLabel="Fat">@context.Fat.ToString("F2")</MudTd>
+        <MudTd DataLabel="Carbohydrate">@context.Carbohydrate.ToString("F2")</MudTd>
+        <MudTd><MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(async () => await DeleteFoodAsnyc(@context.Food_Id))" /></MudTd>
+    </RowTemplate>
 
         <RowEditingTemplate>
             <MudTd DataLabel="ID"> @context.Food_Id </MudTd>
             <MudTd DataLabel="food Name"> <MudTextField @bind-Value="context.Food_Name" Required /> </MudTd>
-         <MudTd DataLabel="Calorie"> @context.Calorie </MudTd>
-         <MudTd DataLabel="Protein"> @context.Protein </MudTd>
-         <MudTd DataLabel="Fat"> @context.Fat </MudTd>
-         <MudTd DataLabel="Carbohydrate"> @context.Carbohydrate </MudTd>
+            <MudTd DataLabel="Calorie"> @context.Calorie.ToString("F2") </MudTd>
+            <MudTd DataLabel="Protein"> @context.Protein.ToString("F2") </MudTd>
+            <MudTd DataLabel="Fat"> @context.Fat.ToString("F2") </MudTd>
+            <MudTd DataLabel="Carbohydrate"> @context.Carbohydrate.ToString("F2") </MudTd>
         </RowEditingTemplate>
 
      <NoRecordsContent>
@@ -91,7 +107,6 @@
     private bool fixed_header = true;
     private bool loading = false;
 
-    private FoodsDTO selectedItem1 = null;
     private FoodsDTO elementBeforeEdit;
     private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
     private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;

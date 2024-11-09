@@ -8,7 +8,11 @@
     {
         var user = (await AuthenticationState).User;
 
-        if (user.Identity!.IsAuthenticated) NavManager.NavigateTo("/home/dashboard");
+        if (user.Identity!.IsAuthenticated && user.IsInRole("Admin"))
+        {
+            NavManager.NavigateTo("/Patients");
+        }
+        else if (user.Identity!.IsAuthenticated) { NavManager.NavigateTo("/home/dashboard"); }
         else NavManager.NavigateTo("/identity/account/login");
     }
 }

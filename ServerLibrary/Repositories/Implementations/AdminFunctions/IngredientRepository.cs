@@ -17,10 +17,10 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
             {
                 Ingredient_Id = i.Ingredient_Id,
                 Ingredient_Name = i.Ingredient_Name,
-                Calorie = i.Calorie,
-                Protein = i.Protein,
-                Fat = i.Fat,
-                Carbohydrate = i.Carbohydrate,
+                Calorie = (double)i.Calorie,
+                Protein = (double)i.Protein,
+                Fat = (double)i.Fat,
+                Carbohydrate = (double)i.Carbohydrate,
             }).ToList();
 
             return ingredientsDTOList;
@@ -77,10 +77,10 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
             {
                 Ingredient_Id = ingredient.Ingredient_Id,
                 Ingredient_Name = ingredient.Ingredient_Name,
-                Calorie = ingredient.Calorie,
-                Protein = ingredient.Protein,
-                Fat = ingredient.Fat,
-                Carbohydrate = ingredient.Carbohydrate
+                Calorie = (double)ingredient.Calorie,
+                Protein = (double)ingredient.Protein,
+                Fat = (double)ingredient.Fat,
+                Carbohydrate = (double)ingredient.Carbohydrate
             };
 
             return ingredientDTO;

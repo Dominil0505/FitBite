@@ -1,5 +1,5 @@
-﻿
-<EditForm Model="Allergy" OnValidSubmit="AddAllergy">
+﻿<EditForm Model="Allergy" OnValidSubmit="AddAllergy">
+    <DataAnnotationsValidator />
     <MudDialog>
         <TitleContent>
             <h2>Add allergy</h2>
@@ -9,7 +9,7 @@
             {
                 <MudAlert Severity="Severity.Error">@message</MudAlert>
             }
-            <MudTextField T="string" Label="Allergy name" Required="true" RequiredError="Allergy name is required!" @bind-Value="Allergy.Allergy_Name" />
+            <MudTextField T="string" Label="Allergy name" For="@(() => Allergy.Allergy_Name)" @bind-Value="Allergy.Allergy_Name" />
        
         </DialogContent>
         <DialogActions>
@@ -33,11 +33,6 @@
     {
         var result = await allergyService.Insert(Allergy, Constants.allergyBaseUrl);
 
-        if (!result.flag)
-        {
-            isUsed = true;
-            message = result.Message;
-        }
         if (result.flag)
         {
             MudDialog.Close(DialogResult.Ok(Allergy));

@@ -1,35 +1,19 @@
-﻿@* <div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Client</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div> *@
-<MudPaper Width="250px" Class="d-inline-flex py-3 mud-theme-primary" Elevation="0">
+﻿<MudPaper Width="250px" Class="d-inline-flex py-3 mud-theme-primary" Elevation="0">
     <MudNavMenu Class="mud-width-full">
         <MudLink Href="/" Typo="Typo.h6" Class="px-4 mud-theme-primary" >Fitbite</MudLink>
         <MudDivider Class="my-2" />
-        <MudNavLink Href="/Allergies" Icon="fas fa-syringe" IconColor="Color.Inherit">Allergies</MudNavLink>
-        <MudNavLink Href="/Diseases" Icon="fas fa-disease" IconColor="Color.Inherit">Diseases</MudNavLink>
-        <MudNavLink Href="/Medications" Icon="fas fa-tablets" IconColor="Color.Inherit">Medications</MudNavLink>
-        <MudNavLink Href="/Ingredients" Icon="fas fa-carrot" IconColor="Color.Inherit">Ingredients</MudNavLink>
-        <MudNavLink Href="/Foods" Icon="fas fa-utensils" IconColor="Color.Inherit">Food</MudNavLink>
-        <MudNavLink Href="/Patients" Icon="fas fa-user" IconColor="Color.Inherit">Patients</MudNavLink>
+        <AuthorizeView Roles="Admin">
+            <MudNavLink Href="/Allergies" Icon="fas fa-syringe" IconColor="Color.Inherit">Allergies</MudNavLink>
+            <MudNavLink Href="/Diseases" Icon="fas fa-disease" IconColor="Color.Inherit">Diseases</MudNavLink>
+            <MudNavLink Href="/Medications" Icon="fas fa-tablets" IconColor="Color.Inherit">Medications</MudNavLink>
+            <MudNavLink Href="/Ingredients" Icon="fas fa-carrot" IconColor="Color.Inherit">Ingredients</MudNavLink>
+            <MudNavLink Href="/Foods" Icon="fas fa-utensils" IconColor="Color.Inherit">Food</MudNavLink>
+            <MudNavLink Href="/Patients" Icon="fas fa-user" IconColor="Color.Inherit">Patients</MudNavLink>
+        </AuthorizeView>
+        
         @* <MudNavGroup Title="Settings" Icon="fas fa-cogs" Expanded="true">
             <MudNavLink Href="/users" Icon="fas fa-users" IconColor="Color.Success">Users</MudNavLink>
             <MudNavLink Href="/security" Icon="fas fa-user-shield" IconColor="Color.Info">Security</MudNavLink>
         </MudNavGroup> *@
     </MudNavMenu>
 </MudPaper>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}

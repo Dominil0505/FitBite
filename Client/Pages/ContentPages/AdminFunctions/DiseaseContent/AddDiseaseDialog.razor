@@ -1,5 +1,5 @@
-﻿
-<EditForm Model="Disease" OnValidSubmit="AddDisease">
+﻿<EditForm Model="Disease" OnValidSubmit="AddDisease">
+    <DataAnnotationsValidator />    
     <MudDialog>
         <TitleContent>
             <h2>Add Disease</h2>
@@ -9,7 +9,7 @@
             {
                 <MudAlert Severity="Severity.Error">@message</MudAlert>
             }
-            <MudTextField T="string" Label="Disease name" Required="true" RequiredError="Allegy name is required!" @bind-Value="Disease.Disease_Name" />
+            <MudTextField T="string" Label="Disease name" For="@(() => Disease.Disease_Name)" @bind-Value="Disease.Disease_Name" />
 
         </DialogContent>
         <DialogActions>

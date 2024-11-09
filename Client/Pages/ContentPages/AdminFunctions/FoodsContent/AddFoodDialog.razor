@@ -1,23 +1,25 @@
-﻿<EditForm Model="Food" OnValidSubmit="AddFood">
+﻿@using System.ComponentModel.DataAnnotations
+<EditForm Model="Food" OnValidSubmit="AddFood">
+    <DataAnnotationsValidator />
     <MudDialog>
         <TitleContent>
             <h2>Add Food</h2>
         </TitleContent>
         <DialogContent>
-            @if (isUsed)
+            @if (Error)
             {
                 <MudAlert Severity="Severity.Error">@message</MudAlert>
             }
-            <MudTextField T="string" Label="Food name" Required="true" RequiredError="Food name is required!" @bind-Value="Food.Food_Name" Class="mb-5"/>
+            <MudTextField T="string" Label="Food name" @bind-Value="Food.Food_Name" For="@(() => Food.Food_Name)" Class="mb-5" />
            <MudPaper Class="pa-4 align-start d-flex" Outlined="true">
                 <MudSpacer />
-                <MudTextField T="double" Label="Protein" Required="true" RequiredError="Proteinis required!" @bind-Value="@totalProtein" Class="mb-5" ReadOnly="true" />
+                <MudTextField T="double" Label="Protein" @bind-Value="@totalProtein" Class="mb-5" ReadOnly="true" />
                 <MudSpacer/>
-                <MudTextField T="double" Label="Fat" Required="true" RequiredError="Fat is required!" @bind-Value="totalFat" Class="mb-5" ReadOnly="true" />
+                <MudTextField T="double" Label="Fat" @bind-Value="totalFat" Class="mb-5" ReadOnly="true" />
                 <MudSpacer />
-                <MudTextField T="double" Label="Carbohydrate" Required="true" RequiredError="Carbohydrate is required!" @bind-Value="totalCarbohydrate" Class="mb-5" ReadOnly="true" />
+                <MudTextField T="double" Label="Carbohydrate" @bind-Value="totalCarbohydrate" Class="mb-5" ReadOnly="true" />
                 <MudSpacer />
-                <MudTextField T="double" Label="Calorie" Required="true" RequiredError="Caloriee is required!" @bind-Value="totalCalories" Class="mb-5" ReadOnly="true" />
+                <MudTextField T="double" Label="Calorie" @bind-Value="totalCalories" Class="mb-5" ReadOnly="true" />
            </MudPaper>
                     
             <MudSelect T="string" Label="Select Allergies" 
@@ -33,7 +35,7 @@
             <MudSelect T="string" Label="Select Ingredients" MultiSelection="true"
                        SelectedValuesChanged="@(values => { selectedIngredients = values; CalcCalorie(); })"
                        AnchorOrigin="Origin.BottomCenter"
-            Class="mb-5">
+                       Class="mb-5">
                 @foreach (var ingredient in ingredients)
                 {
                     <MudSelectItem T="string" Value="@ingredient.Ingredient_Name">
@@ -50,14 +52,13 @@
         </DialogActions>
     </MudDialog>
 </EditForm> 
-
 @code {
-    private string stringValue { get; set; }    
+    private string stringValue { get; set; }
 
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; }
 
-    private bool isUsed = false;
+    private bool Error = false;
     private string message = "";
 
     private void Cancel() => MudDialog.Cancel();
@@ -68,6 +69,8 @@
     private List<IngredientDTO> ingredients = new List<IngredientDTO>();
 
     private IEnumerable<string> selectedAllergies { get; set; } = new HashSet<string>();
+
+    [Required (ErrorMessage = "Please choose an ingredients")]
     private IEnumerable<string> selectedIngredients { get; set; } = new HashSet<string>();
 
     private double totalCalories = 0;
@@ -92,21 +95,25 @@
         Food.Fat = totalFat;
         Food.Carbohydrate = totalCarbohydrate;
 
-        var result = await foodService.Insert(Food, Constants.foodBaseUrl);
+        if (selectedIngredients.Any())
+        {
+            var result = await foodService.Insert(Food, Constants.foodBaseUrl);
 
-        if (!result.flag)
-        {
-            isUsed = true;
-            message = result.Message;
-        }
-        if (result.flag)
-        {
-            MudDialog.Close(DialogResult.Ok(Food));
+            if (result.flag)
+            {
+                MudDialog.Close(DialogResult.Ok(Food));
+            }
+            else
+            {
+                Error = true;
+                message = result.Message;
+                StateHasChanged();
+            }
         }
         else
         {
-            isUsed = true;
-            message = result.Message;
+            Error = true;
+            message = "Ingredients is required! Please choose one";
             StateHasChanged();
         }
     }
