@@ -9,6 +9,9 @@ namespace BaseLibrary.Entities
         [Key]
         public int Dietician_Id { get; set; }
         public string? Description { get; set; }
+        public int Patient_Number { get; set; } = 0;
+        public int Maximum_Patient_Number { get; set; } = 0;
+        
 
         // Relations | foreign key to Users table
         [ForeignKey("Users")]

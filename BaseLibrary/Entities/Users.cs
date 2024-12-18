@@ -23,7 +23,6 @@ namespace BaseLibrary.Entities
         public DateTime Created_At { get; set; } = DateTime.Now;
         public DateTime? Updated_At { get; set; }
         public DateTime? Deleted_At { get; set; }
-        public bool? Is_profile_completed { get; set; } = false;
 
         // Relations
         public virtual ICollection<User_Roles>? UserRoles { get; set; } = new List<User_Roles>();

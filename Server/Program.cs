@@ -1,4 +1,5 @@
 using BaseLibrary.DTOs.AdminFunctionDTOs;
+using BaseLibrary.DTOs.Dietitian;
 using BaseLibrary.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,8 @@ using ServerLibrary.Helpers;
 using ServerLibrary.Repositories.Contracts;
 using ServerLibrary.Repositories.Implementations;
 using ServerLibrary.Repositories.Implementations.AdminFunctions;
+using ServerLibrary.Repositories.Implementations.Dietitian;
+using ServerLibrary.Repositories.Implementations.Patient;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +60,12 @@ builder.Services.AddScoped<IGenericRepositoryInterface<DiseaseDTO>, DiseaseRepos
 builder.Services.AddScoped<IGenericRepositoryInterface<IngredientDTO>, IngredientRepository>();
 builder.Services.AddScoped<IGenericRepositoryInterface<MedicationDTO>, MedicationRepository>();
 builder.Services.AddScoped<IGenericRepositoryInterface<FoodsDTO>, FoodRepository>();
+
+// Patient DI
+builder.Services.AddScoped<IPatientAssignment<PatientDTO>, PatientRepository>();
+
+// Dietitan DI
+builder.Services.AddScoped<IDietitianInterface<AvailableDietDTO>, DietitianRepository>();
 
 builder.Services.AddCors(options =>
 {

@@ -14,18 +14,18 @@ namespace BaseLibrary.Entities
         public byte? Height { get; set; }
         public short? Weight { get; set; }
         public string? Gender { get; set; }
-        public string? DieticianName { get; set; }
         public int? Created_By_Admin_Id { get; set; }
+        public bool? Is_profile_completed { get; set; } = false;
 
 
         // Relation
-        [ForeignKey("User")]
+        [ForeignKey(nameof(Users))]
         public int? User_Id { get; set; }
-        public virtual Users? User { get; set; }
+        public virtual Users? Users { get; set; }
 
-        [ForeignKey("Dietician")]
+        [ForeignKey(nameof(Dieticians))]
         public int? Dietician_Id { get; set; }
-        public virtual Dieticians? Dietician { get; set; }
+        public virtual Dieticians? Dieticians { get; set; }
 
         // Relation N:M 
         public virtual ICollection<Patient_Allergies>? PatientAllergies { get; set; } = new List<Patient_Allergies>();

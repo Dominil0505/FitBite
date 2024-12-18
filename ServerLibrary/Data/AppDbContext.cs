@@ -115,7 +115,7 @@ namespace ServerLibrary.Data
 
             modelBuilder.Entity<Menu_Foods>()
                 .HasKey(mf => new { mf.MenuId, mf.FoodId });
-
+                
             modelBuilder.Entity<Menu_Foods>()
                 .HasOne(mf => mf.Menu)
                 .WithMany(m => m.MenuFoods)
