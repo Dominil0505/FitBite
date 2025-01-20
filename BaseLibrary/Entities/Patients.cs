@@ -16,7 +16,9 @@ namespace BaseLibrary.Entities
         public string? Gender { get; set; }
         public int? Created_By_Admin_Id { get; set; }
         public bool? Is_profile_completed { get; set; } = false;
-
+        public DateTime? Assign_Date { get; set; }
+        public DateTime? Assign_Update_Date { get; set; }
+        public DateTime? Assign_Delete_Date { get; set; }
 
         // Relation
         [ForeignKey(nameof(Users))]

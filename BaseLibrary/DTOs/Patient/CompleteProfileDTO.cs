@@ -5,6 +5,7 @@ namespace BaseLibrary.DTOs.Patient
 {
     public class CompleteProfileDTO
     {
+        public int userId {  get; set; }
         [Required(ErrorMessage = "Date of Birth is required!")]
         public DateTime? DoB { get; set; }
 
@@ -18,5 +19,11 @@ namespace BaseLibrary.DTOs.Patient
 
         [Required(ErrorMessage = "Gender is required")]
         public string? Gender { get; set; }
+
+        public List<int> selectedAllergyId { get; set; }
+        
+        public List<int> selectedMedicationId { get; set; }
+        
+        public List<int> selectedDiseaseId { get; set; }
     }
 }

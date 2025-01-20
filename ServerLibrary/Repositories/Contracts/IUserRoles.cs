@@ -1,7 +1,9 @@
-﻿namespace ServerLibrary.Repositories.Contracts
+﻿using BaseLibrary.Entities;
+
+namespace ServerLibrary.Repositories.Contracts
 {
-    public interface IUserRoles<T>
+    public interface IUserRoles
     {
-        Task<List<T>> GetAllRoles();
+        Task<List<Roles>> GetAllRoles();
     }
 }

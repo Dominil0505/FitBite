@@ -1,41 +1,19 @@
 ﻿using BaseLibrary.DTOs.AdminFunctionDTOs;
+using BaseLibrary.DTOs.Patient;
 using Microsoft.AspNetCore.Mvc;
 using ServerLibrary.Repositories.Contracts;
 
 namespace Server.Controllers.Patient
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class PatientController(IPatientAssignment<PatientDTO> patientService) : Controller
+    [ApiController]
+    public class PatientController (IPatientInterface patientInterface) : Controller
     {
-
-        [HttpGet("NewPatients")]
-        public async Task<IActionResult> GetNewPatientsAsync()
+        [HttpPost]
+        public async Task<IActionResult> CompleteProfile(CompleteProfileDTO completeProfile, string token)
         {
-            var result = await patientService.GetNewlyRegisteredPatientAsnyc();
-            return Ok(result);
+            if (completeProfile == null) return BadRequest();
+            return Ok(await patientInterface.CompleteProfile(completeProfile, token));
         }
-
-        [HttpPost("AssignToDietitian")]
-        public async Task<IActionResult> AssignToDietitianAsync(int patientId, int dietitianId)
-        {
-            var result = await patientService.AssignPatientToDietAsync(patientId, dietitianId);
-            return Ok(result);
-        }
-
-        [HttpPost("Unassign")]
-        public async Task<IActionResult> UnassignAsync(int patientId)
-        {
-            var result = await patientService.UnassignPatientAsync(patientId);
-            return Ok(result);
-        }
-
-        [HttpGet("DietPatientPair")]
-        public async Task<IActionResult> GetPatientDietianPair()
-        {
-            var result = await patientService.GetPatientDietianPair();
-            return Ok(result);
-        }
-
     }
 }

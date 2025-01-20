@@ -7,14 +7,14 @@ namespace Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RolesController(IUserRoles<Roles> rolesInterface) : ControllerBase
+    public class RolesController(IUserRoles rolesInterface) : ControllerBase
     {
-        [HttpGet("Roles")]
+        [HttpGet("roles")]
         public async Task<IActionResult> GetRolesAsync()
         {
             var result = await rolesInterface.GetAllRoles();
             return Ok(result);
-            
+                
         }
     }
 }

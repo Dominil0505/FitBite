@@ -1,2 +1,143 @@
 @page "/Patients"
-<h1>Patient</h1>
+
+<h1>Manage patients</h1>
+
+<MudTable T="PatientDTO" Dense="@dense" Hover="@hover" ReadOnly="@ronly"
+          FixedHeader="@fixed_header"
+          Loading="@loading"
+          Height="@(fixed_header ?"710px":"")"
+          Items="patients"
+          ServerData="ServerReload"
+          @ref="table">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Patient List</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="id_field" T="PatientDTO">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="PatientDTO">Patient Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="PatientDTO">Assigned Dietitan</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="PatientDTO">Date</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="PatientDTO">Status</MudTableSortLabel></MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Patient_Id</MudTd>
+        <MudTd DataLabel="Patient Name">@context.Patient_Name</MudTd>
+        <MudTd DataLabel="Assigned Dietitan">@context.Dietitian_Name</MudTd>
+        <MudTd DataLabel="Date">@context.AssignDate</MudTd>
+            <MudTd DataLabel="Status">
+                @if (@context.Status == "New")
+                {
+                <MudChip Color="Color.Warning" Value="@Color.Warning" Icon="@Icons.Material.Filled.NewReleases">@context.Status</MudChip>
+                }
+                else
+                {
+                <MudChip Color="Color.Success" Value="@Color.Success" Icon="@Icons.Material.Filled.Check">@context.Status</MudChip>
+                }
+
+        </MudTd>
+        <MudTd DataLabel="ID"><MudFab StartIcon="@Icons.Material.Filled.Add" Label="Assign" Size="Size.Small" Color="Color.Tertiary" OnClick="() => OpenAssignDialogAsync((int)context.Patient_Id!)" /></MudTd>
+        <MudTd DataLabel="ID"><MudFab StartIcon="@Icons.Material.Filled.RemoveRedEye" Label="Manage" Size="Size.Small" Color="Color.Info" /></MudTd>
+    </RowTemplate>
+
+     <NoRecordsContent>
+         <MudText>No matching records found</MudText>
+     </NoRecordsContent>
+     <LoadingContent>
+         <MudText>Loading...</MudText>
+     </LoadingContent>
+     <PagerContent>
+         <MudTablePager />
+     </PagerContent>
+     <EditButtonContent Context="button">
+         <MudFab Color="Color.Info" Size="@Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+     </EditButtonContent>
+
+ </MudTable>
+
+
+@code{
+    private List<string> editEvents = new();
+    private bool dense = false;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool blockSwitch = false;
+    private bool fixed_header = true;
+    private bool loading = false;
+    private string searchString = null;
+    private int totalItems;
+
+    private MudTable<PatientDTO> table;
+
+    private IEnumerable<PatientDTO> patients = new List<PatientDTO>();
+
+    // Load data
+    private async Task<TableData<PatientDTO>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<PatientDTO> data = await patientService.GetPatientAsnyc(Constants.AdminPatientUrl);
+        await Task.Delay(300, token);
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Patient_Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "name_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Patient_Name);
+                break;
+            case "id_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Patient_Id);
+                break;
+        }
+
+        patients = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<PatientDTO>() { TotalItems = totalItems, Items = patients };
+    }
+
+    // Open Assign dialog
+    protected async Task OpenAssignDialogAsync(int patientdId)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialogParamters = new DialogParameters<AssignPatientDialog>();
+
+        var dialogParameters = new DialogParameters
+        {
+            { "GetPatientId", patientdId }
+        };
+
+        var dialog = await DialogService.ShowAsync<AssignPatientDialog>("Assign Patient", dialogParameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("SuccessFully assign patient to dietitan", Severity.Success);
+        }
+    }
+
+    protected async Task OpenManageDialogAsync(int patientdId)
+    {
+        
+    }
+
+    // Search
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+   
+}

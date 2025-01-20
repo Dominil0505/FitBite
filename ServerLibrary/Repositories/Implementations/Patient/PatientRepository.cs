@@ -1,113 +1,86 @@
-﻿using BaseLibrary.DTOs.AdminFunctionDTOs;
-using BaseLibrary.DTOs.Patient;
+﻿using BaseLibrary.DTOs.Patient;
 using BaseLibrary.Entities;
+using BaseLibrary.EntitiesRelation;
 using BaseLibrary.Responses;
 using Microsoft.EntityFrameworkCore;
 using ServerLibrary.Data;
-using ServerLibrary.Data.Migrations;
+using ServerLibrary.Helpers;
 using ServerLibrary.Repositories.Contracts;
 
 namespace ServerLibrary.Repositories.Implementations.Patient
 {
-    public class PatientRepository(AppDbContext _context) : IPatientAssignment<PatientDTO>
+    public class PatientRepository : IPatientInterface
     {
-        public async Task<GeneralResponse> AssignPatientToDietAsync(int patientId, int dietitanId)
+        private readonly AppDbContext _context;
+        private readonly JWThelper _jwtHelper;
+
+        public PatientRepository(AppDbContext context, JWThelper jwtHelper)
         {
-            NotFoundPatient(patientId);
-            if (dietitanId <= 0) return new GeneralResponse(false, "No such a dietitan id");
-
-
-            var getPatient = await _context.Patients.FirstOrDefaultAsync(_ => _.Patient_Id == patientId);
-            var getDietitan = await _context.Dieticians.FirstOrDefaultAsync(_ => _.Dietician_Id == dietitanId);
-
-            if (getPatient == null) return new GeneralResponse(false, "Patient is not found");
-            if (getDietitan == null) return NotFoundDietitan();
-
-            getPatient.Dietician_Id = dietitanId;
-            await Commit();
-            return Success();
-
+            _context = context;
+            _jwtHelper = jwtHelper;
         }
 
-        public async Task<List<PatientDTO>> GetNewlyRegisteredPatientAsnyc()
+        public async Task<GeneralResponse> CompleteProfile(CompleteProfileDTO completeProfile, string token)
         {
-            var newPatients = await _context.Patients
-            .Where(_ => _.Dietician_Id == null)
-            .Include(u => u.Users)
-            .ToListAsync();
+            var userId = _jwtHelper.GetUserIdFromToken(token);
 
-            var patientDtoList = newPatients.Select(p => new PatientDTO
+            if(string.IsNullOrEmpty(userId) ) return new GeneralResponse(false, "Invalid token");
+
+            var findPatient = await _context.Patients.FirstOrDefaultAsync(_ => _.User_Id == Convert.ToInt32(userId));
+            if (findPatient == null) return new GeneralResponse(false, "User not found");
+
+            // Save patient data
+            completeProfile.userId = Convert.ToInt32(userId);
+            findPatient.DoB = completeProfile.DoB;
+            findPatient.Height = completeProfile.Height;
+            findPatient.Weight = completeProfile.Weight;
+            findPatient.Gender = completeProfile.Gender;
+            findPatient.Is_profile_completed = true;
+
+            // Save patient Allergy
+            if (completeProfile.selectedAllergyId.Any())
             {
-                Patient_Id = p.Patient_Id,
-                Patient_Name = p.Users.User_Name,
-                Patient_Email = p.Users.Email,
-                IsProfileCompleted = (bool)p.Is_profile_completed
-            }).ToList();
+                var patientAllergies = completeProfile.selectedAllergyId
+                .Select(allergyId => new Patient_Allergies
+                {
+                    PatientId = Convert.ToInt32(userId),
+                    AllergyId = allergyId
+                }).ToList();
 
-            return patientDtoList;
-        }
+                await _context.Patient_Allergies.AddRangeAsync(patientAllergies);
+            }
 
-        public async Task<GeneralResponse> UnassignPatientAsync(int patientId)
-        {
-            NotFoundPatient(patientId);
 
-            var getPatient = await _context.Patients.FirstOrDefaultAsync(_ => _.Patient_Id == patientId);
-            getPatient.Dietician_Id = null;
-            await Commit();
-            return Success();
-
-        }
-
-        public async Task<List<PatientDTO>> GetPatientDietianPair()
-        {
-            var patientsWithDieticians = await _context.Patients
-                .Where(p => p.Dietician_Id != null)
-                .Include(p => p.Users)
-                .Include(p => p.Dieticians.Users)
-                .ToListAsync();
-
-            var patientDtoList = patientsWithDieticians.Select(p => new PatientDTO
+            // Save patient Medication
+            if (completeProfile.selectedMedicationId.Any())
             {
-                Patient_Id = p.Patient_Id,
-                Patient_Name = p.Users.User_Name,
-                Patient_Email = p.Users.Email,
-                Dietitan_Id = p.Dietician_Id,
-                Dietitan_Name = p.Dieticians?.Users?.User_Name ?? "No Dietitian",
-                IsProfileCompleted = p.Is_profile_completed ?? false
-            }).ToList();
+                var patientMedication = completeProfile.selectedMedicationId
+                .Select(medicationId => new Patient_Medication
+                {
+                    PatientId = Convert.ToInt32(userId),
+                    MedicationId = medicationId
 
-            return patientDtoList;
-        }
+                }).ToList();
+                await _context.patient_Medications.AddRangeAsync(patientMedication);
+            }
 
-        public async Task<GeneralResponse> CompleteProfile(int userId, CompleteProfileDTO completeProfileDTO)
-        {
-            var findPatient = await _context.Patients.FirstOrDefaultAsync(_ => _.User_Id == userId);
-
-            NotFoundPatient(findPatient.Patient_Id);
-
-            if (findPatient.Is_profile_completed == true) return new GeneralResponse(false, "Profile is completed");
-
-            var updatePatient = new Patients
+            // Save patient Disease
+            if (completeProfile.selectedDiseaseId.Any())
             {
-                DoB = completeProfileDTO.DoB,
-                Weight = completeProfileDTO.Weight,
-                Height = completeProfileDTO.Height,
-                Gender = completeProfileDTO.Gender,
-            };
+                var patientDisease = completeProfile.selectedDiseaseId
+                    .Select(diseaseId => new Patient_Disease
+                    {
+                        PatientId = Convert.ToInt32(userId),
+                        DiseaseId = diseaseId
+                    });
+                await _context.Patient_Diseases.AddRangeAsync(patientDisease);
+            }
+            
 
             await _context.SaveChangesAsync();
-            return Success();
-        }
+            return new GeneralResponse(true, "Profile completed...");
 
-        private static GeneralResponse NotFoundPatient(int patientId)
-        {
-            if (patientId <= 0 || patientId == null) return new GeneralResponse(false, "Sorry, patient not found");
-            else return new GeneralResponse(false); ;
         }
-
-        private static GeneralResponse NotFoundDietitan() => new(false, "Sorry, dietitian not found");
-        private static GeneralResponse Success() => new(true, "Process Completed");
-        private async Task Commit() => await _context.SaveChangesAsync();
 
     }
 }

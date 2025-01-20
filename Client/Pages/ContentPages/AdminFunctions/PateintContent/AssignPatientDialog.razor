@@ -1,0 +1,75 @@
+﻿<EditForm Model="Patient" OnValidSubmit="AssingPatient">
+    <DataAnnotationsValidator />
+    <MudDialog>
+        <TitleContent>
+            <h2>Assign Patient to Dietitian</h2>
+            @if (warning)
+            {
+                <MudAlert Severity="Severity.Error">@message</MudAlert>
+            }
+        </TitleContent>
+        <DialogContent>
+            <MudSelect T="int?" Label="Select a Dietitian" @bind-Value="Patient.Dietitian_Id">
+                @foreach (var diet in dietitians)
+                {
+                    <MudSelectItem Value="@diet.Dietitan_Id">@diet.Dietitan_Name</MudSelectItem>
+                }
+            </MudSelect>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+@code {
+    
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    PatientDTO Patient = new();
+
+    private List<AvailableDietDTO> dietitians = new();
+
+    private bool warning = false;
+
+    private string message = "";
+
+    [Parameter]
+    public int GetPatientId { get; set; } // Get patient id from PatientsPage
+
+    private void Cancel() => MudDialog.Cancel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        dietitians = await availableDietService.GetAvailableDiet(Constants.DietitianUrl);
+        Patient.Patient_Id = GetPatientId;
+    }
+
+    async Task AssingPatient()  
+    {   
+        var result = await patientService.AssignAsync(Patient, Constants.AdminPatientUrl);
+
+
+        if (Patient.Dietitian_Id == null)
+        {
+            warning = true;
+            message = "Please select a dietitian before saving.";
+            StateHasChanged();
+        }
+        else if (result.flag == false)
+        {
+            warning = true;
+            message = result.Message; // Warning message
+            StateHasChanged();
+        }
+        else
+        {
+            MudDialog.Close(DialogResult.Ok(Patient)); // Successfully save
+            StateHasChanged();
+        }
+
+    }
+
+}

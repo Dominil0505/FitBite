@@ -249,6 +249,15 @@ namespace ServerLibrary.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Patient_Id"));
 
+                    b.Property<DateTime?>("Assign_Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Assign_Delete_Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Assign_Update_Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("Created_By_Admin_Id")
                         .HasColumnType("int");
 

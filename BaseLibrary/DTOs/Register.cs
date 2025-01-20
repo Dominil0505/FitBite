@@ -20,5 +20,6 @@ namespace BaseLibrary.DTOs
 
         [Required(ErrorMessage = "Please select Role!")]
         public string? Role { get; set; }
+
     }
 }

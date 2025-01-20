@@ -10,7 +10,7 @@ namespace ClientLibrary.Services.Implementations
         public async Task<List<T>> GetRolesAsync()
         {
             var httpClient = getHttpClient.GetPublicHttpClient();
-            var result = await httpClient.GetFromJsonAsync<List<T>>($"{AuthUrl}/Roles");
+            var result = await httpClient.GetFromJsonAsync<List<T>>($"{AuthUrl}/roles");
 
             return result!;
         }

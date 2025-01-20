@@ -42,7 +42,7 @@ namespace ServerLibrary.Repositories.Implementations
             else if(user.Role == "Patient")
             {
                 var role = await FindRole("Patient");
-                await AddToDatabase(new Patients { User_Id = applicationUser.User_Id });
+                await AddToDatabase(new Patients { User_Id = applicationUser.User_Id});
                 await AddToDatabase( new User_Roles { UserId = applicationUser.User_Id, RoleId = role.Role_Id });
             }
             else if (user.Role == "Admin")

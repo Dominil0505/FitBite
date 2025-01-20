@@ -51,7 +51,8 @@ builder.Services.AddAuthentication(options =>
 // Authenticatation DI
 builder.Services.Configure<JwtSection>(builder.Configuration.GetSection("JwtSection"));
 builder.Services.AddScoped<IUserAccount, UserAccountRepository>();
-builder.Services.AddScoped<IUserRoles<Roles>, RolesRepository>();
+builder.Services.AddScoped<IUserRoles, RolesRepository>();
+builder.Services.AddScoped<JWThelper>();
 
 
 // Admin function DI
@@ -62,7 +63,9 @@ builder.Services.AddScoped<IGenericRepositoryInterface<MedicationDTO>, Medicatio
 builder.Services.AddScoped<IGenericRepositoryInterface<FoodsDTO>, FoodRepository>();
 
 // Patient DI
-builder.Services.AddScoped<IPatientAssignment<PatientDTO>, PatientRepository>();
+builder.Services.AddScoped<IPatientAssignment<PatientDTO>, AdminPatientRepository>();
+builder.Services.AddScoped<IPatientInterface, PatientRepository>();
+
 
 // Dietitan DI
 builder.Services.AddScoped<IDietitianInterface<AvailableDietDTO>, DietitianRepository>();

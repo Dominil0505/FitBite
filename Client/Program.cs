@@ -1,4 +1,5 @@
 using BaseLibrary.DTOs.AdminFunctionDTOs;
+using BaseLibrary.DTOs.Dietitian;
 using BaseLibrary.Entities;
 using Blazored.LocalStorage;
 using Client;
@@ -37,7 +38,11 @@ builder.Services.AddScoped<IGenericServiceInterface<IngredientDTO>, GenericServi
 builder.Services.AddScoped<IGenericServiceInterface<MedicationDTO>, GenericServiceImplementation<MedicationDTO>>();
 builder.Services.AddScoped<IGenericServiceInterface<FoodsDTO>, GenericServiceImplementation<FoodsDTO>>();
 
+// Admin - Patient Functions
+builder.Services.AddScoped<IPatientAssignment<PatientDTO>, PatientAssignment<PatientDTO>>();
 
+// Dietitan
+builder.Services.AddScoped<IAvailableDiet, AvailableDietService>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddMudServices();

@@ -8,7 +8,7 @@ namespace Server.Controllers.Dietitian
     [ApiController]
     public class DietititanController(IDietitianInterface<AvailableDietDTO> dietitanService) : ControllerBase
     {
-        [HttpGet("AvailableDiet")]
+        [HttpGet("available-dietitians")]
         public async Task<IActionResult> GetAvailableDietitans()
         {
             var result = await dietitanService.GetAvailableDietitans();
