@@ -1,4 +1,5 @@
 ﻿using BaseLibrary.DTOs.AdminFunctionDTOs;
+using BaseLibrary.Entities;
 using BaseLibrary.Responses;
 using Microsoft.EntityFrameworkCore;
 using ServerLibrary.Data;
@@ -23,7 +24,8 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
                 Dietitian_Id = p.Dietician_Id,
                 Dietitian_Name = p.Dieticians?.Users?.User_Name ?? "No Dietitian",
                 IsProfileCompleted = p.Is_profile_completed ?? false,
-                Status = (p.Dietician_Id != null) ? "Completed" : "New"
+                Status = (p.Dietician_Id != null) ? "Completed" : "New",
+                AssignDate = p.Assign_Date
             }).ToList();
 
             return patientDtoList;
@@ -49,16 +51,38 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
 
         }
 
-        public async Task<GeneralResponse> UnassignPatientAsync(int patientId)
+        public async Task<GeneralResponse> UnassignPatientAsync(PatientDTO patient)
         {
-            NotFoundPatient(patientId);
+            NotFoundPatient((int)patient.Patient_Id);
 
-            var getPatient = await _context.Patients.FirstOrDefaultAsync(_ => _.Patient_Id == patientId);
+            var getPatient = await _context.Patients.FirstOrDefaultAsync(_ => _.Patient_Id == patient.Patient_Id);
+
+            if (getPatient == null) return new GeneralResponse(false, "Patient ID not exist!");
+
             getPatient.Dietician_Id = null;
             getPatient.Assign_Delete_Date = DateTime.Now;
             await Commit();
             return Success();
 
+        }
+
+        public async Task<PatientDTO> GetPatientByIdAsync(int patientId)
+        {
+            var patient = await _context.Patients
+                .Where(_ => _.Patient_Id == patientId)
+                .Include(u => u.Users)
+                .Include(u => u.Dieticians.Users)
+                .FirstOrDefaultAsync();
+
+            var result = new PatientDTO
+            {
+                Patient_Id = patient.Patient_Id,
+                Patient_Name = patient.Users.User_Name,
+                Dietitian_Name = patient.Dieticians?.Users?.User_Name ?? "No Dietitian",
+                AssignDate = patient.Assign_Date
+            };
+
+            return result;
         }
 
         private static GeneralResponse NotFoundPatient(int patientId)

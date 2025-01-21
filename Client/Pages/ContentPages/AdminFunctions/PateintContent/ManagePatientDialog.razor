@@ -2,21 +2,22 @@
     <DataAnnotationsValidator />
     <MudDialog>
         <TitleContent>
-            <h2>Assign Patient to Dietitian</h2>
+            <h2>Manage Patient</h2>
         </TitleContent>
         <DialogContent>
             @if (warning)
             {
                 <MudAlert Severity="Severity.Error">@message</MudAlert>
             }
-            <MudSelect T="int?" Label="Select a Dietitian" @bind-Value="Patient.Dietitian_Id">
-                @foreach (var diet in dietitians)
-                {
-                    <MudSelectItem Value="@diet.Dietitan_Id">@diet.Dietitan_Name</MudSelectItem>
-                }
-            </MudSelect>
+            <MudTextField T="String" Label="Patient name" ReadOnly Value="Patient.Patient_Name" Class="mb-3"/>
+             <MudTextField T="String" Label="Dietitan name" ReadOnly Value="Patient.Dietitian_Name" Class="mb-3" />
+             @if (Patient.AssignDate != null)
+            {
+                <MudTextField T="DateTime" Label="Assigned Date" ReadOnly Value="(DateTime)Patient.AssignDate" />
+            }
         </DialogContent>
         <DialogActions>
+            <MudFab Label="Unassign Patient" Color="Color.Error" Size="Size.Small" OnClick="() => UnAssign((int)Patient.Patient_Id!)" />
             <MudButton OnClick="Cancel">Cancel</MudButton>
             <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
         </DialogActions>
@@ -43,12 +44,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Patient = await patientService.GetPatientByIdAsync(GetPatientId, Constants.AdminPatientUrl);
         dietitians = await availableDietService.GetAvailableDiet(Constants.DietitianUrl);
-        Patient.Patient_Id = GetPatientId;
     }
 
-    async Task AssingPatient()  
-    {   
+    async Task AssingPatient()
+    {
         var result = await patientService.AssignAsync(Patient, Constants.AdminPatientUrl);
 
 
@@ -71,6 +72,22 @@
             MudDialog.Close(DialogResult.Ok(Patient)); // Successfully save
         }
 
+    }
+
+    async Task UnAssign(int patientId)
+    {
+        Console.WriteLine($"Pati ID: {patientId}");
+        var result = await patientService.UnassignAsync(Patient, Constants.AdminPatientUrl);
+
+        if (result.flag)
+        {
+            MudDialog.Close(DialogResult.Ok(Patient));
+        }
+        else
+        {
+            Snackbar.Add(result.Message);
+            return;
+        }
     }
 
 }

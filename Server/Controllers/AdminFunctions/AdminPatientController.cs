@@ -24,9 +24,16 @@ namespace Server.Controllers.AdminFunctions
         }
 
         [HttpPost("unassign")]
-        public async Task<IActionResult> UnassignAsync(int patientId)
+        public async Task<IActionResult> UnassignAsync(PatientDTO patient)
         {
-            var result = await patientService.UnassignPatientAsync(patientId);
+            var result = await patientService.UnassignPatientAsync(patient);
+            return Ok(result);
+        }
+
+        [HttpGet("get-patient/{patientId}")]
+        public async Task<IActionResult> GetPatientByIdAsync([FromRoute]int patientId)
+        {
+            var result = await patientService.GetPatientByIdAsync(patientId);
             return Ok(result);
         }
 

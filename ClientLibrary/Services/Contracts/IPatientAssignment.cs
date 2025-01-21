@@ -6,6 +6,7 @@ namespace ClientLibrary.Services.Contracts
     {
         Task<List<T>> GetPatientAsnyc(string baseURL);
         Task<GeneralResponse> AssignAsync(T AssignPatient, string baseURL);
-        Task<GeneralResponse> UnassignAsync(int patientId, string baseURL);
+        Task<GeneralResponse> UnassignAsync(T patient, string baseURL);
+        Task<T> GetPatientByIdAsync(int patientId, string baseURL);
     }
 }

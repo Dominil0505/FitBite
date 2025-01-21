@@ -7,6 +7,7 @@ namespace ServerLibrary.Repositories.Contracts
     {
         Task<List<T>> GetPatientAsnyc();
         Task<GeneralResponse> AssignPatientToDietAsync(T AssignPatient);
-        Task<GeneralResponse> UnassignPatientAsync(int patientId);
+        Task<GeneralResponse> UnassignPatientAsync(T patient);
+        Task<T> GetPatientByIdAsync(int patientId);
     }
 }

@@ -18,10 +18,10 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTh><MudTableSortLabel SortLabel="id_field" T="PatientDTO">ID</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="name_field" T="PatientDTO">Patient Name</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="name_field" T="PatientDTO">Assigned Dietitan</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="name_field" T="PatientDTO">Date</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="name_field" T="PatientDTO">Status</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="patient_name" T="PatientDTO">Patient Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="assign_dietitian" T="PatientDTO">Assigned Dietitan</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="date" T="PatientDTO">Date</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="status" T="PatientDTO">Status</MudTableSortLabel></MudTh>
         <MudTh></MudTh>
         <MudTh></MudTh>
     </HeaderContent>
@@ -43,7 +43,7 @@
 
         </MudTd>
         <MudTd DataLabel="ID"><MudFab StartIcon="@Icons.Material.Filled.Add" Label="Assign" Size="Size.Small" Color="Color.Tertiary" OnClick="() => OpenAssignDialogAsync((int)context.Patient_Id!)" /></MudTd>
-        <MudTd DataLabel="ID"><MudFab StartIcon="@Icons.Material.Filled.RemoveRedEye" Label="Manage" Size="Size.Small" Color="Color.Info" /></MudTd>
+        <MudTd DataLabel="ID"><MudFab StartIcon="@Icons.Material.Filled.RemoveRedEye" Label="Manage" Size="Size.Small" Color="Color.Info" OnClick="() => OpenManageDialogAsync((int)context.Patient_Id!)" /></MudTd>
     </RowTemplate>
 
      <NoRecordsContent>
@@ -129,7 +129,23 @@
 
     protected async Task OpenManageDialogAsync(int patientdId)
     {
-        
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
+        var dialogParamters = new DialogParameters<ManagePatientDialog>();
+
+        var dialogParameters = new DialogParameters
+        {
+            { "GetPatientId", patientdId }
+        };
+
+        var dialog = await DialogService.ShowAsync<ManagePatientDialog>("Manage Patient", dialogParameters, options);
+        var result = await dialog.Result;
+         
+        if (!result.Canceled)
+        {
+            await table.ReloadServerData();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add("Successfully update patient", Severity.Success);
+        }
     }
 
     // Search

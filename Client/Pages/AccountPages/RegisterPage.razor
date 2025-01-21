@@ -1,5 +1,6 @@
 ﻿@page "/authentication/register"
 @layout AuthenticationLayout
+@using Client.Pages.OtherPages
 
 <EditForm Model="User" OnValidSubmit="HandleRegistration">
     <DataAnnotationsValidator />
@@ -11,24 +12,39 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudTextField Label="FullName"
-                                  @bind-Value="User.Name" />
-                    <MudTextField Label="Email" Class="mt-3"
-                                  @bind-Value="User.Email" />
-                    <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
-                                  @bind-Value="User.Password"InputType="InputType.Password" />
-                    <MudTextField Label="Password" HelperText="Repeat the password" Class="mt-3"
-                                  @bind-Value="User.ConfirmPassword" InputType="InputType.Password" Style="@($"border")"/>
-                </MudCardContent>
-                  <MudSelect T="string" Label="Select a role" @bind-Value="User.Role">
-                    @foreach (var role in roles)
-                    {
-                        <MudSelectItem Value="@role.Role_Name">@role.Role_Name</MudSelectItem>
-                    }
-                </MudSelect>
+                                  @bind-Value="User.Name" For="@(() => User.Name)" />
 
-                <h3>If have an account <MudLink Href="/authentication/login">Login</MudLink></h3>
+                    <MudTextField Label="Email" Class="mt-3"
+                                  @bind-Value="User.Email" For="@(() => User.Email)"/>
+
+                    <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3" 
+                                  @bind-Value="User.Password" InputType="InputType.Password" For="@(() => User.Password)"/>
+
+                    <MudTextField Label="Password" HelperText="Repeat the password" Class="mt-3"
+                                  @bind-Value="User.ConfirmPassword" InputType="InputType.Password" Style="@($"border")" For="@(() => User.ConfirmPassword)" />
+
+                    <MudSelect T="string" Label="Select a role" @bind-Value="User.Role" For="@(() => User.Role)">
+                        @foreach (var role in roles)
+                        {
+                            <MudSelectItem Value="@role.Role_Name">@role.Role_Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <h3>If have an account <MudLink Href="/authentication/login">Login</MudLink></h3>
+                    @if (isMessage)
+                    {
+                        <MudAlert Severity="Severity.Success" Class="mt-3" Variant="Variant.Filled">@message</MudAlert>
+                    }
+                </MudCardContent>
+                
                 <MudCardActions Class="d-flex justify-center">
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="" Color="Color.Primary">Register</MudButton>
+                     @if (ShowLoadingButton)
+                    {
+                        <ButtonLoadingSpinner></ButtonLoadingSpinner>
+                    }
+                    else
+                    {
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="" Color="Color.Primary">Register</MudButton>
+                    }
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -38,17 +54,28 @@
 @code {
     Register User = new();
 
+    public bool ShowLoadingButton { get; set; }
+
+    bool isMessage = false;
+    string message = "";
+
     async Task HandleRegistration(){
+        ShowLoadingButton = true;
         var result = await accountService.CreateUserAsync(User);
 
         if (result.flag)
         {
+            isMessage = true;
             User = new();
+            message = result.Message;
         }
         else
         {
-            
+            isMessage = true;
+            message = result.Message;
         }
+
+        ShowLoadingButton = false;
     }
 
     private List<Roles> roles = new List<Roles>();

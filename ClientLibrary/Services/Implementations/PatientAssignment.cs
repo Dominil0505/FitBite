@@ -1,6 +1,4 @@
-﻿
-using BaseLibrary.DTOs.AdminFunctionDTOs;
-using BaseLibrary.Responses;
+﻿using BaseLibrary.Responses;
 using ClientLibrary.Helpers;
 using ClientLibrary.Services.Contracts;
 using System.Net.Http.Json;
@@ -21,20 +19,27 @@ namespace ClientLibrary.Services.Implementations
         {
 
             var httpClient = await getHttpClient.GetPrivateHttpClient();
-
             var response = await httpClient.PostAsJsonAsync($"{baseURL}/assign", AssignPatient);
             var result = await response.Content.ReadFromJsonAsync<GeneralResponse>();
 
             return result!;
         }
 
-        public async Task<GeneralResponse> UnassignAsync(int patientId, string baseURL)
+        public async Task<GeneralResponse> UnassignAsync(T patient, string baseURL)
         {
             var httpClient = await getHttpClient.GetPrivateHttpClient();
-            var response = await httpClient.PostAsJsonAsync($"{baseURL}/unassign", patientId);
+            var response = await httpClient.PostAsJsonAsync($"{baseURL}/unassign", patient);
             var result = await response.Content.ReadFromJsonAsync<GeneralResponse>();
 
             return result!;
+        }
+
+        public async Task<T> GetPatientByIdAsync(int patientId, string baseURL)
+        {
+            var httpClient = await getHttpClient.GetPrivateHttpClient();
+            var result = await httpClient.GetFromJsonAsync<T>($"{baseURL}/get-patient/{patientId}");
+
+            return result;
         }
     }
 }
