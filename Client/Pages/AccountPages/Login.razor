@@ -18,9 +18,11 @@
                     <img width="96" height="96" src="https://img.icons8.com/color/96/user.png" alt="user" />
                 </MudCardHeader>
                 <MudCardContent>
+
                     <MudTextField Label="Email" Class="mt-3" @bind-Value="User.Email" For="@(() => User.Email)" />
                     <MudTextField Label="Password" Class="mt-3" @bind-Value="User.Password" For="@(() => User.Password)" InputType="InputType.Password" />
                 <h3>If you don't have an account <MudLink Href="/authentication/register">Register</MudLink></h3>
+                
                 </MudCardContent>
                 <MudCardActions Class="d-flex justify-center">
                     @if (ShowLoadingButton)

@@ -1,0 +1,52 @@
+﻿@page "/profile"
+@using Client.Pages.Profile.Dietitian
+@using Client.Pages.Profile.Patient
+@using Client.Pages.Profile.Admin
+
+@* PATIENT PROFILE *@
+<AuthorizeView Roles="Patient">
+    <h1>Patient</h1>
+
+    <MudGrid Spacing="3">
+        <MudItem xs="12" sm="4" md="3">
+            <SideProfile></SideProfile>
+        </MudItem>
+        <MudItem xs="12" sm="8" md="5">
+            <PatientProfile></PatientProfile>
+        </MudItem>
+    </MudGrid>
+</AuthorizeView>
+
+
+@* ADMIN PROFILE *@
+<AuthorizeView Roles="Admin">
+    <h1>Admin</h1>
+    <MudGrid Spacing="3">
+        <MudItem xs="12" sm="4" md="3">
+            <SideProfile></SideProfile>
+        </MudItem>
+        <MudItem xs="12" sm="8" md="5">
+            <AdminProfile></AdminProfile>   
+        </MudItem>
+    </MudGrid>
+</AuthorizeView>
+
+@* DIETITIAN PROFILE *@
+<AuthorizeView Roles="Dietitian">
+    <h1>Diet</h1>
+    <MudGrid Spacing="3">
+        <MudItem xs="12" sm="4" md="3">
+            <SideProfile></SideProfile>
+        </MudItem>
+        <MudItem xs="12" sm="8" md="5">
+            <DietitianProfile></DietitianProfile>
+        </MudItem>
+    </MudGrid>
+
+</AuthorizeView>
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+    }
+}

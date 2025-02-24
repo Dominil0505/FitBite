@@ -29,20 +29,8 @@
     <main>
         <AuthorizeView>
             <Authorized>
-                @* <div class="top-row px-6">
-                    <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
-                        <ActivatorContent>
-                            <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">Hello, @context.User.Identity?.Name!</MudChip>
-                        </ActivatorContent>
-                        <ChildContent>
-                            <MudMenuItem>Profile</MudMenuItem>
-                            <MudMenuItem @onclick="LogoutClicked">Sign Out</MudMenuItem>
-                        </ChildContent>
-                    </MudMenu>
-                </div> *@
-
                 <MudAppBar Color="Color.Primary" Fixed="false">
-                    <!-- Felhasználói név megjelenítése -->
+                    
                     <MudChip T="string" Icon="fas fa-user" Color="Color.Primary">
                         Hello, @context.User.Identity?.Name!
                     </MudChip>
@@ -50,7 +38,7 @@
                     <MudSpacer />
 
                     <MudMenu Icon="fas fa-user" Color="Color.Inherit">
-                        <MudMenuItem>Profile</MudMenuItem>
+                        <MudMenuItem Href="/Profile">Profile</MudMenuItem>
                         <MudMenuItem>Setting</MudMenuItem>
                         <MudMenuItem OnClick="LogoutClicked">Sing out</MudMenuItem>
                     </MudMenu>
@@ -81,6 +69,8 @@
         await customAuthStateProvider.UpdateAuthenticationState(logoutModel);
         NavManager.NavigateTo("/", forceLoad: true);
     }
+
+
     MudTheme MyCustomTheme = new MudTheme()
         {
             PaletteLight = new PaletteLight()

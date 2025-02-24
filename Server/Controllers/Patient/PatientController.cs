@@ -1,5 +1,4 @@
-﻿using BaseLibrary.DTOs.AdminFunctionDTOs;
-using BaseLibrary.DTOs.Patient;
+﻿using BaseLibrary.DTOs.Patient;
 using Microsoft.AspNetCore.Mvc;
 using ServerLibrary.Repositories.Contracts;
 
@@ -9,11 +8,18 @@ namespace Server.Controllers.Patient
     [ApiController]
     public class PatientController (IPatientInterface patientInterface) : Controller
     {
-        [HttpPost]
-        public async Task<IActionResult> CompleteProfile(CompleteProfileDTO completeProfile, string token)
+        [HttpPost("complete-profile")]
+        public async Task<IActionResult> CompleteProfile(CompleteProfileDTO completeProfile)
         {
             if (completeProfile == null) return BadRequest();
-            return Ok(await patientInterface.CompleteProfile(completeProfile, token));
+            return Ok(await patientInterface.CompleteProfile(completeProfile));
+        }
+
+        [HttpGet("is-profile-completed/{user_id}")]
+        public async Task<IActionResult> IsProfileCompleted(int user_id)
+        {
+            if(user_id == null) return BadRequest();
+            return Ok(await patientInterface.IsProfileCompleted(user_id));
         }
     }
 }

@@ -10,5 +10,7 @@ namespace ClientLibrary.Helpers
         public const string foodBaseUrl = "api/Foods";
         public const string AdminPatientUrl = "api/AdminPatient";
         public const string DietitianUrl = "/api/Dietititan";
+        public const string PatientUrl = "/api/Patient";
+        
     }
 }

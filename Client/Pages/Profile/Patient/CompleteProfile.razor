@@ -1,0 +1,127 @@
+﻿@using System.Security.Claims
+@using Client.Pages.OtherPages
+
+@page "/Completeprofile"
+<h1>Please Complete your Profile</h1>
+<br/>
+
+
+@using ME = MudExtensions.MudStepper;
+
+@if (!completeSuccess)
+{
+    <MudCard Style="width: 700px;">
+        <EditForm Model="@pat" OnValidSubmit="SaveProfile">
+            <DataAnnotationsValidator />
+            <MudCardContent>
+                <MudTextField Label="Height" HelperText="For ex.: 160 cm" @bind-Value="pat.Height"
+                For="@(() => pat.Height)" InputType="InputType.Number"/>
+
+                <MudTextField Label="Weight" HelperText="For ex.: 67 kg" @bind-Value="pat.Weight"
+                For="@(() => pat.Weight)" InputType="InputType.Number"/>
+
+                <MudDatePicker Label="Date of Birth" HelperText="For ex.: 2006.03.12" @bind-Date="pat.DoB"
+                ShowToolbar="false" For="(() => pat.DoB)"/>
+
+                <MudSelect @bind-Value="pat.Gender" Label="Gender" For="@(() => pat.Gender)">
+                    <MudSelectItem Value="@("Male")">Male</MudSelectItem>
+                    <MudSelectItem Value="@("Female")">Female</MudSelectItem>
+                </MudSelect>
+
+
+                <MudSelect Label="Allergy"
+                T="string"
+                MultiSelection="true"
+                @bind-SelectedValues="pat.selectedAllergyName">
+                    @foreach (var allergy in allergies)
+                    {
+                        <MudSelectItem Value="allergy.Allergy_Name">@allergy.Allergy_Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudSelect Label="Medication"
+                T="string"
+                MultiSelection="true"
+                @bind-SelectedValues="pat.selectedMedicationName">
+                    @foreach (var medication in medications)
+                    {
+                        <MudSelectItem Value="medication.Medication_Name">@medication.Medication_Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudSelect Label="Disease"
+                T="string"
+                MultiSelection="true"
+                @bind-SelectedValues="pat.selectedDiseaseName">
+                    @foreach (var disease in diseases)
+                    {
+                        <MudSelectItem Value="disease.Disease_Name">@disease.Disease_Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudCardActions>
+                    @if (ShowLoadingButton)
+                    {
+                        <ButtonLoadingSpinner></ButtonLoadingSpinner>
+                    }
+                    else
+                    {
+                        <MudButton Color="Color.Primary" ButtonType="ButtonType.Submit" Variant="Variant.Outlined">Save</MudButton>
+                    }
+                    
+                </MudCardActions>
+            </MudCardContent>
+        </EditForm>
+    </MudCard>
+}
+else
+{
+    <MudAlert Severity="Severity.Success" Class="mt-3" Variant="Variant.Filled">@message</MudAlert>
+}
+
+@code{
+
+    CompleteProfileDTO pat = new CompleteProfileDTO();
+
+    private List<AllergyDTO> allergies = new List<AllergyDTO>();
+    private List<MedicationDTO> medications = new List<MedicationDTO>();
+    private List<DiseaseDTO> diseases = new List<DiseaseDTO>();
+
+    private string? userEmail;
+    private string? userId;
+
+    private bool completeSuccess = false;
+    private bool ShowLoadingButton = false;
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        allergies = await allergyService.GetAll(Constants.allergyBaseUrl);
+        medications = await medicationService.GetAll(Constants.medicationBaseUrl);
+        diseases = await diseaseService.GetAll(Constants.diseaseBaseUrl);
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is { IsAuthenticated: true })
+        {
+            userEmail = user.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+            userId = user.Claims.FirstOrDefault(_ => _.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        }
+    }
+
+    async Task SaveProfile()
+    {
+        ShowLoadingButton = true;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        pat.userId = Convert.ToInt32(user.Claims.FirstOrDefault(_ => _.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+        var result = await completeProfileService.CompleteProfile(pat, Constants.PatientUrl);
+
+        message = result.Message;
+        completeSuccess = true;
+        ShowLoadingButton = false;
+    }
+
+}

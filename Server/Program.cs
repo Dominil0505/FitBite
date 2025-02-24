@@ -70,6 +70,9 @@ builder.Services.AddScoped<IPatientInterface, PatientRepository>();
 // Dietitan DI
 builder.Services.AddScoped<IDietitianInterface<AvailableDietDTO>, DietitianRepository>();
 
+// Profile DI
+builder.Services.AddScoped<IProfile, ProfileRepository>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorWasm",

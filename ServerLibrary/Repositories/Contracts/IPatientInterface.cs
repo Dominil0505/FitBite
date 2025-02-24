@@ -5,6 +5,7 @@ namespace ServerLibrary.Repositories.Contracts
 {
     public interface IPatientInterface
     {
-        Task<GeneralResponse> CompleteProfile(CompleteProfileDTO completeProfile, string token);
+        Task<GeneralResponse> CompleteProfile(CompleteProfileDTO completeProfile);
+        Task<GeneralResponse> IsProfileCompleted(int user_id);
     }
 }

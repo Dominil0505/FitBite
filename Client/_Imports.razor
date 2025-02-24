@@ -19,9 +19,6 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-@* Mudextension *@
-@using MudExtensions
-
 @using BaseLibrary.DTOs
 @using ClientLibrary.Helpers
 @using ClientLibrary.Services.Contracts
@@ -47,3 +44,6 @@
 
 @* Dietitan *@
 @inject IAvailableDiet availableDietService;
+
+@* Patient - Completeprofile *@
+@inject ICompleteProfile completeProfileService;

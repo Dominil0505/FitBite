@@ -1,5 +1,4 @@
 using BaseLibrary.DTOs.AdminFunctionDTOs;
-using BaseLibrary.DTOs.Dietitian;
 using BaseLibrary.Entities;
 using Blazored.LocalStorage;
 using Client;
@@ -16,6 +15,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddTransient<CustomHttpHandler>();
+builder.Services.AddMudExtensions();
 builder.Services.AddHttpClient("SystemApiClient", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7244");
@@ -23,10 +23,12 @@ builder.Services.AddHttpClient("SystemApiClient", client =>
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
+
 builder.Services.AddScoped<GetHttpClient>();
 builder.Services.AddScoped<LocalStorageService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<IUserAccountService, UserAccountService>();
+
 
 // Roles for registration page
 builder.Services.AddScoped<IUserRoles<Roles>, UserRolesService<Roles>>();
@@ -43,6 +45,9 @@ builder.Services.AddScoped<IPatientAssignment<PatientDTO>, PatientAssignment<Pat
 
 // Dietitan
 builder.Services.AddScoped<IAvailableDiet, AvailableDietService>();
+
+// Patient - Complete profile
+builder.Services.AddScoped<ICompleteProfile, CompleteProfileService>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddMudServices();
