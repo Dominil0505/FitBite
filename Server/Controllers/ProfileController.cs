@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BaseLibrary.DTOs.Profile;
+using Microsoft.AspNetCore.Mvc;
 using ServerLibrary.Repositories.Contracts;
 
 namespace Server.Controllers
@@ -55,6 +56,33 @@ namespace Server.Controllers
             if (user_id == null) return BadRequest();
 
             var result = await profileInterface.deleteAdminProfile(user_id);
+            return Ok(result);
+        }
+
+        [HttpPut("update-admin-profile")]
+        public async Task<IActionResult> updateAdminProfile(AdminProfileDTO profile)
+        {
+            if (profile.user_id == null) return BadRequest();
+
+            var result = await profileInterface.updateAdminProfile(profile);
+            return Ok(result);
+        }
+
+        [HttpPut("update-dietitian-profile")]
+        public async Task<IActionResult> updateDietitianProfile(DietitianProfileDTO profile)
+        {
+            if (profile.user_id == null) return BadRequest();
+
+            var result = await profileInterface.updateDietitianprofile(profile);
+            return Ok(result);
+        }
+
+        [HttpPut("update-patient-profile")]
+        public async Task<IActionResult> updatePatientProfile(PatientProfileDTO profile)
+        {
+            if (profile.user_id == null) return BadRequest();
+
+            var result = await profileInterface.updatePatientProfile(profile);
             return Ok(result);
         }
     }
