@@ -97,7 +97,7 @@
 
  </MudTable>
 
- @code {
+    @code {
     private List<string> editEvents = new();
     private bool dense = false;
     private bool hover = true;
@@ -117,11 +117,12 @@
     private MudTable<FoodsDTO> table;
     private int totalItems;
     private string searchString = null;
-
+    IEnumerable<FoodsDTO> data = new List<FoodsDTO>();
 
     private async Task<TableData<FoodsDTO>> ServerReload(TableState state, CancellationToken token)
     {
-        IEnumerable<FoodsDTO> data = await foodService.GetAll(Constants.foodBaseUrl);
+        data = await foodService.GetAll(Constants.foodBaseUrl);
+
         await Task.Delay(300, token);
         data = data.Where(element =>
         {

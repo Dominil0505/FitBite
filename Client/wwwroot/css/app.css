@@ -6,6 +6,16 @@ body {
     background-color: #eff3f6 !important;
 }
 
+/*Side bar bg*/
+.mud-drawer-content {
+    background-color: #164A41!important ;
+}
+
+/*Nav link color*/
+.mud-nav-link {
+    color: #FFFFFF !important;
+}
+
 h1:focus {
     outline: none;
 }

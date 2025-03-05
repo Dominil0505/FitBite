@@ -34,7 +34,7 @@ namespace ServerLibrary.Repositories.Implementations
                 {
                     user_id = user_id,
                     email_address = d.Users.Email,
-                    max_patient_number = d.Patient_Number,
+                    max_patient_number = d.Maximum_Patient_Number,
                     name = d.Users.User_Name,
                     patient_name = _context.Patients
                         .Where(p => p.Dietician_Id == d.Dietician_Id)
@@ -155,7 +155,7 @@ namespace ServerLibrary.Repositories.Implementations
             dietitian.Patient_Number = dietitianProfile.patient_number;
             dietitian.Users.Mobile = dietitianProfile.phone_number;
 
-            Commit();
+            await Commit();
             return Success();
         }
 

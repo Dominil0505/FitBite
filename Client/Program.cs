@@ -1,4 +1,6 @@
 using BaseLibrary.DTOs.AdminFunctionDTOs;
+using BaseLibrary.DTOs.Patient;
+using BaseLibrary.DTOs.Profile;
 using BaseLibrary.Entities;
 using Blazored.LocalStorage;
 using Client;
@@ -48,6 +50,13 @@ builder.Services.AddScoped<IAvailableDiet, AvailableDietService>();
 
 // Patient - Complete profile
 builder.Services.AddScoped<ICompleteProfile, CompleteProfileService>();
+
+// Profile
+builder.Services.AddScoped<IProfile<PatientProfileDTO>, ProfileService<PatientProfileDTO>>();
+builder.Services.AddScoped<IProfile<DietitianProfileDTO>, ProfileService<DietitianProfileDTO>>();
+builder.Services.AddScoped<IProfile<AdminProfileDTO>, ProfileService<AdminProfileDTO>>();
+builder.Services.AddScoped<IProfile<CompleteProfileDTO>, ProfileService<CompleteProfileDTO>>();
+
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddMudServices();

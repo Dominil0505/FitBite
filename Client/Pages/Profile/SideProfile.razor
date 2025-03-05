@@ -5,3 +5,20 @@
         <MudNavLink Href="/profile" IconColor="Color.Inherit">Notification</MudNavLink>
     </MudNavMenu>
 </MudPaper>
+
+<MudTabs Position="Position.Left"
+         ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
+    <MudTabPanel Text="Account preferences">
+        <Client.Pages.Profile.Admin.AdminProfile></Client.Pages.Profile.Admin.AdminProfile>
+    </MudTabPanel>
+    <MudTabPanel Text="Notification">
+        <MudText>Content Two</MudText>
+    </MudTabPanel>
+    <MudTabPanel Text="Delete profile">
+        <MudText>Content Three</MudText>
+    </MudTabPanel>
+</MudTabs>
+
+@code{
+
+}

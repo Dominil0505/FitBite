@@ -1,0 +1,55 @@
+﻿@page "/DropZone"
+
+
+<MudDropContainer T="DropZoneItem" Items="_items" ItemsSelector="@((item, dropzone) => item.Zone == dropzone)" ItemDropped="ItemUpdated" Class="4 flex-grow-1">
+    <ChildContent>
+        <MudDropContainer T="DropZone" Items="_zones" ItemDisabled="@(item => true)" ItemsSelector="@((item, dropzone) => true)" Class="5">
+            <ChildContent>
+                <MudDropZone T="DropZone" AllowReorder Class="6 mud-background-gray px-4 py-1 ma-4 rounded" />
+             </ChildContent>
+             <ItemRenderer>
+                 <MudPaper Class="pa-4 my-4">
+                     <MudText Typo="Typo.h6">@context.Name</MudText>
+                        <MudDropZone T="DropZoneItem" Identifier="@context.Name" AllowReorder Class="mud-background-gray px-4 py-1 ma-4 rounded" />
+                 </MudPaper>
+             </ItemRenderer>
+         </MudDropContainer>
+     </ChildContent>
+     <ItemRenderer>
+         <MudPaper Class="pa-4 my-4">
+             <MudText>@context.Name</MudText>
+            </MudPaper>
+        </ItemRenderer>
+    </MudDropContainer>
+
+    @code {
+
+    private void ItemUpdated(MudItemDropInfo<DropZoneItem> dropItem) => dropItem.Item.Zone = dropItem.DropzoneIdentifier;
+
+    private List<DropZone> _zones = new()
+    {
+        new() { Name = "Breakfeast" },
+        new() { Name = "Brunch" },
+        new() { Name = "Lunch"},
+        new() { Name= "Snack"},
+        new() { Name = "Dinner"}
+    };
+
+    private List<DropZoneItem> _items = new()
+    {
+        new() { Zone = "Breakfeast", Name = "Item 1" },
+        new() { Zone = "Brunch", Name = "Item 2" },
+        new() { Zone = "Lunch", Name = "Item 3" },
+    };
+
+    private class DropZone
+    {
+        public string Name { get; init; }
+    }
+
+    private class DropZoneItem
+    {
+        public string Zone { get; set; }
+        public string Name { get; init; }
+    }
+}

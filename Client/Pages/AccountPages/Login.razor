@@ -22,7 +22,12 @@
                     <MudTextField Label="Email" Class="mt-3" @bind-Value="User.Email" For="@(() => User.Email)" />
                     <MudTextField Label="Password" Class="mt-3" @bind-Value="User.Password" For="@(() => User.Password)" InputType="InputType.Password" />
                 <h3>If you don't have an account <MudLink Href="/authentication/register">Register</MudLink></h3>
-                
+
+                    @if (isMessage)
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mt-3" Variant="Variant.Filled">@message</MudAlert>
+                    }
+
                 </MudCardContent>
                 <MudCardActions Class="d-flex justify-center">
                     @if (ShowLoadingButton)
@@ -44,6 +49,8 @@
     CustomLogin User = new();
 
     public bool ShowLoadingButton { get; set; }
+    bool isMessage = false;
+    string message = "";
 
     async Task HandleLogin()
     {
@@ -55,6 +62,11 @@
             await customAuthStateProvider.UpdateAuthenticationState(new UserSession()
                 { Token = result.Token, RefreshToken = result.RefreshToken });
             NavManager.NavigateTo("/", forceLoad: true);
+        }
+        else
+        {
+            isMessage = true;
+            message = result.Message;
         }
 
         ShowLoadingButton = false;

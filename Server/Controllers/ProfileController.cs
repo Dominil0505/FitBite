@@ -32,7 +32,7 @@ namespace Server.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("delete-patient-profile")]
+        [HttpDelete("delete-patient-profile/{user_id}")]
         public async Task<IActionResult> deletePatientProfile(int user_id)
         {
             if (user_id == null) return BadRequest();
@@ -41,7 +41,7 @@ namespace Server.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("delete-dietitian-profile")]
+        [HttpDelete("delete-dietitian-profile/{user_id}")]
         public async Task<IActionResult> deleteDietitianProfile(int user_id)
         {
             if (user_id == null) return BadRequest();
@@ -50,7 +50,7 @@ namespace Server.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("delete-admin-profile")]
+        [HttpDelete("delete-admin-profile/{user_id}")]
         public async Task<IActionResult> deleteAdminProfile(int user_id)
         {
             if (user_id == null) return BadRequest();
@@ -60,7 +60,7 @@ namespace Server.Controllers
         }
 
         [HttpPut("update-admin-profile")]
-        public async Task<IActionResult> updateAdminProfile(AdminProfileDTO profile)
+        public async Task<IActionResult> updateAdminProfile([FromBody] AdminProfileDTO profile)
         {
             if (profile.user_id == null) return BadRequest();
 
@@ -69,7 +69,7 @@ namespace Server.Controllers
         }
 
         [HttpPut("update-dietitian-profile")]
-        public async Task<IActionResult> updateDietitianProfile(DietitianProfileDTO profile)
+        public async Task<IActionResult> updateDietitianProfile([FromBody] DietitianProfileDTO profile)
         {
             if (profile.user_id == null) return BadRequest();
 
@@ -78,7 +78,7 @@ namespace Server.Controllers
         }
 
         [HttpPut("update-patient-profile")]
-        public async Task<IActionResult> updatePatientProfile(PatientProfileDTO profile)
+        public async Task<IActionResult> updatePatientProfile([FromBody] PatientProfileDTO profile)
         {
             if (profile.user_id == null) return BadRequest();
 

@@ -1,39 +1,42 @@
-﻿
-<MudPaper Class="pa-4 ma-2" Outlined="true" Square="true" Height="800px" >
-    <h2>Patients</h2>
-    <MudList T="string">
-        <MudListItem>
-            <AvatarContent>
-                <MudAvatar>
-                    <MudIcon Icon="@Icons.Material.Filled.Work" Color="Color.Primary" />
-                </MudAvatar>
-            </AvatarContent>
-            <ChildContent>
-                Photos
-            </ChildContent>
-        </MudListItem>
-        <MudListItem>
-            <AvatarContent>
-                <MudAvatar>
-                    <MudIcon Icon="@Icons.Material.Filled.Work" Color="Color.Primary" />
-                </MudAvatar>
-            </AvatarContent>
-            <ChildContent>
-                Work
-            </ChildContent>
-        </MudListItem>
-        <MudListItem>
-            <AvatarContent>
-                <MudAvatar Color="Color.Tertiary">V</MudAvatar>
-            </AvatarContent>
-            <ChildContent>
-                Vacation
-            </ChildContent>
-        </MudListItem>
-    </MudList>
-</MudPaper>
+﻿<MudPaper Width="550px" Elevation="0" Style="border-radius: 15px;" Class="pa-4 ma-2">
+    <EditForm Model="dietitianProfile" OnValidSubmit="SaveProfile">
+        <MudTextField T="string" Label="Name" Value="dietitianProfile.name" ReadOnly Class="mt-3" />
+         <MudTextField T="string" Label="Email" Value="dietitianProfile.email_address" ReadOnly Class="mt-3" />
+         <MudTextField T="int" Label="Maximum patient number" @bind-Value="dietitianProfile.max_patient_number" Class="mt-3" />
+         <MudTextField T="string" Label="Phone number" @bind-Value="@dietitianProfile.phone_number" Class="mt-3" />
+         <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" Label="Save changes" Size="Size.Medium" ButtonType="ButtonType.Submit" Class="mt-3" />
+     </EditForm>
+ </MudPaper>
+
+ @code {
+    DietitianProfileDTO? dietitianProfile = new();
 
 
-@code {
+    int user_id = 0;
 
+    bool isMessage = false;
+    string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        user_id = Convert.ToInt32(user.Claims.FirstOrDefault(_ => _.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+
+        dietitianProfile = await dietitianProfileService.getProfile(user_id, "dietitian");
+    }
+
+    protected async Task SaveProfile()
+    {
+        var result = await dietitianProfileService.updateProfile(dietitianProfile, "dietitian");
+
+        if (result.flag)
+        {
+            isMessage = true;
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add(result.Message, Severity.Success);
+
+            StateHasChanged();
+        }
+    }
 }

@@ -10,14 +10,10 @@
 
         var isCompleted = await completeProfileService.IsProfileCompleted(Convert.ToInt32(user.Claims.FirstOrDefault(_ => _.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value), Constants.PatientUrl);
 
-        Console.WriteLine($"Flag: {isCompleted.flag} Message: {isCompleted.Message}");
-        Console.WriteLine("ID: " + Convert.ToInt32(user.Claims.FirstOrDefault(_ => _.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value));
-
         if (user.Identity!.IsAuthenticated && user.IsInRole("Admin"))
         {
             NavManager.NavigateTo("/Patients");
         }
-        else if (user.Identity!.IsAuthenticated && user.IsInRole("Patient") && isCompleted.flag) { NavManager.NavigateTo("/token"); }
         else if (user.Identity!.IsAuthenticated && user.IsInRole("Patient") && !isCompleted.flag) { NavManager.NavigateTo("/Completeprofile"); }
         else if (user.Identity!.IsAuthenticated) { NavManager.NavigateTo("/home/dashboard"); }
         else NavManager.NavigateTo("/identity/account/login");

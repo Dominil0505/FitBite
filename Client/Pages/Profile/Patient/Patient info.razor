@@ -1,0 +1,84 @@
+﻿<MudPaper Width="550px" Elevation="0" Style="border-radius: 15px;" Class="pa-4 ma-2">
+    <MudText Typo="Typo.h4">Patient Info</MudText>
+        <EditForm Model="patientProfile" OnValidSubmit="SaveProfile">
+        <MudSelect Label="Allergy"
+                   T="string"
+                   MultiSelection="true"
+                   @bind-SelectedValues="patientProfile.selectedAllergyName">
+            @foreach (var allergy in allergies)
+            {
+                <MudSelectItem Value="allergy.Allergy_Name">@allergy.Allergy_Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect Label="Medication"
+                   T="string"
+                   MultiSelection="true"
+                   @bind-SelectedValues="patientProfile.selectedMedicationName">
+            @foreach (var medication in medications)
+            {
+                <MudSelectItem Value="medication.Medication_Name">@medication.Medication_Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect Label="Disease"
+                   T="string"
+                   MultiSelection="true"
+                   @bind-SelectedValues="patientProfile.selectedDiseaseName">
+            @foreach (var disease in diseases)
+            {
+                <MudSelectItem Value="disease.Disease_Name">@disease.Disease_Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" Label="Save changes" Size="Size.Medium" ButtonType="ButtonType.Submit" Class="mt-3" />
+    </EditForm>
+    
+</MudPaper>
+
+
+@code {
+    private PatientProfileDTO? patientProfile = new();
+    private CompleteProfileDTO profile = new();
+
+    private List<AllergyDTO> allergies = new List<AllergyDTO>();
+    private List<MedicationDTO> medications = new List<MedicationDTO>();
+    private List<DiseaseDTO> diseases = new List<DiseaseDTO>();
+
+    int user_id = 0;
+    bool editProfile = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allergies = await allergyService.GetAll(Constants.allergyBaseUrl);
+        medications = await medicationService.GetAll(Constants.medicationBaseUrl);
+        diseases = await diseaseService.GetAll(Constants.diseaseBaseUrl);
+
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        user_id = Convert.ToInt32(user.Claims.FirstOrDefault(_ => _.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+
+        patientProfile = await patientProfileService.getProfile(user_id, "patient");
+    }
+
+    protected async Task SaveProfile()
+    {
+        patientProfile.user_id = user_id;
+        var result = await patientProfileService.updateProfile(patientProfile, "patient");
+
+        if (result.flag)
+        {
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add(result.Message, Severity.Success);
+
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add(result.Message, Severity.Error);
+
+            StateHasChanged();
+        }
+    }
+}

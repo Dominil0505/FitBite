@@ -3,6 +3,7 @@
 @using BaseLibrary.DTOs.AdminFunctionDTOs
 @using BaseLibrary.DTOs.Dietitian
 @using BaseLibrary.DTOs.Patient
+@using BaseLibrary.DTOs.Profile
 @using BaseLibrary.Entities
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
@@ -47,3 +48,13 @@
 
 @* Patient - Completeprofile *@
 @inject ICompleteProfile completeProfileService;
+
+@* Profile *@
+@inject IProfile<PatientProfileDTO> patientProfileService;
+@inject IProfile<AdminProfileDTO> adminProfileService;
+@inject IProfile<DietitianProfileDTO> dietitianProfileService;
+@inject IProfile<CompleteProfileDTO> patientUpdateProfileService;
+
+
+@* Calendar *@
+@using Heron.MudCalendar

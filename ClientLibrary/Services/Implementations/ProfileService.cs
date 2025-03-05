@@ -1,5 +1,4 @@
-﻿using BaseLibrary.DTOs.Profile;
-using BaseLibrary.Responses;
+﻿using BaseLibrary.Responses;
 using ClientLibrary.Helpers;
 using ClientLibrary.Services.Contracts;
 using System.Net.Http.Json;

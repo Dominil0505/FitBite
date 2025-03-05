@@ -1,7 +1,43 @@
-﻿<MudPaper Width="350px" Elevation="0" Style="border-radius: 15px;" Class="pa-4 ma-2">
-    <h2>Patient</h2>
-</MudPaper>
+﻿<MudPaper Width="550px" Elevation="0" Style="border-radius: 15px;" Class="pa-4 ma-2">
+    <h2>Patient profile</h2>
+    <EditForm Model="patientProfile" OnValidSubmit="SaveProfile">
+        <MudTextField T="string" Label="Name" Value="patientProfile.name" ReadOnly Class="mt-3"/>
+         <MudTextField T="string" Label="Email" Value="patientProfile.email_address" ReadOnly Class="mt-3" />
+         <MudTextField T="string" Label="Dietitian" Value="patientProfile.dietitan_name" ReadOnly Class="mt-3" />
+         <MudTextField T="string" Label="Phone number" @bind-Value="@patientProfile.phone_number" Class="mt-3" />
+         <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" Label="Save changes" Size="Size.Medium" ButtonType="ButtonType.Submit" Class="mt-3" />
+     </EditForm>
+ </MudPaper>
 
-@code {
+ @code {
+    PatientProfileDTO? patientProfile = new();
 
+
+    int user_id = 0;
+
+    bool isMessage = false;
+    string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        user_id = Convert.ToInt32(user.Claims.FirstOrDefault(_ => _.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+
+        patientProfile = await patientProfileService.getProfile(user_id, "patient");
+    }
+
+    protected async Task SaveProfile()
+    {
+        var result = await patientProfileService.updateProfile(patientProfile, "patient");
+
+        if (result.flag)
+        {
+            isMessage = true;
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+            Snackbar.Add(result.Message, Severity.Success);
+
+            StateHasChanged();
+        }
+    }
 }

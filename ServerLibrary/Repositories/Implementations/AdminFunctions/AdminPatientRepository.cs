@@ -1,5 +1,4 @@
 ﻿using BaseLibrary.DTOs.AdminFunctionDTOs;
-using BaseLibrary.Entities;
 using BaseLibrary.Responses;
 using Microsoft.EntityFrameworkCore;
 using ServerLibrary.Data;
@@ -44,8 +43,18 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
             if (getPatient == null) return new GeneralResponse(false, "Patient not found, does not exist in the database");
             if (getDietitan == null) return NotFoundDietitan();
 
+            var patientDietitianPair = await _context.Patients.FirstOrDefaultAsync(_ => _.Dietician_Id == getPatient.Dietician_Id);
+
+            if (patientDietitianPair?.Dietician_Id == null)
+            {
+                getDietitan.Patient_Number++;
+            }
+
             getPatient.Dietician_Id = AssignPatient.Dietitian_Id;
             getPatient.Assign_Date = DateTime.Now;
+
+            
+            
             await Commit();
             return Success();
 
@@ -56,8 +65,18 @@ namespace ServerLibrary.Repositories.Implementations.AdminFunctions
             NotFoundPatient((int)patient.Patient_Id);
 
             var getPatient = await _context.Patients.FirstOrDefaultAsync(_ => _.Patient_Id == patient.Patient_Id);
+            var getDietitan = await _context.Dieticians.FirstOrDefaultAsync(_ => _.Dietician_Id == getPatient.Dietician_Id);
+
 
             if (getPatient == null) return new GeneralResponse(false, "Patient ID not exist!");
+
+
+            var patientDietitianPair = await _context.Patients.FirstOrDefaultAsync(_ => _.Dietician_Id == getPatient.Dietician_Id);
+
+            if (patientDietitianPair?.Dietician_Id != null)
+            {
+                getDietitan.Patient_Number--;
+            }
 
             getPatient.Dietician_Id = null;
             getPatient.Assign_Delete_Date = DateTime.Now;
