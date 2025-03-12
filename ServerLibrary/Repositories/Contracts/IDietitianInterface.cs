@@ -3,9 +3,9 @@ using BaseLibrary.Responses;
 
 namespace ServerLibrary.Repositories.Contracts
 {
-    public interface IDietitianInterface<T> : IGenericRepositoryInterface<T>
+    public interface IDietitianInterface
     {
-        Task<List<T>> GetAvailableDietitans();
-        Task<GeneralResponse> AssignMenuToPatient(int patient_id, int dietitian_id, MenuToPatientDTO menuPatientDTO);
+        Task<GeneralResponse> AssignMenuToPatient(MenuToPatientDTO menuPatientDTO);
+        Task<List<DietitianPatientPairDTO>> GetPatientDietitianPair(int dietitan_id);
     }
 }

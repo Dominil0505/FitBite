@@ -68,7 +68,7 @@ builder.Services.AddScoped<IPatientInterface, PatientRepository>();
 
 
 // Dietitan DI
-builder.Services.AddScoped<IDietitianInterface<AvailableDietDTO>, DietitianRepository>();
+builder.Services.AddScoped<IAvailableDietitianInterface<AvailableDietDTO>, AvailableDietitianRepository>();
 
 // Profile DI
 builder.Services.AddScoped<IProfile, ProfileRepository>();

@@ -5,6 +5,8 @@ namespace BaseLibrary.DTOs.Dietitian
 {
     public class MenuToPatientDTO
     {
+        public int dietitian_id { get; set; }
+        public int patient_id { get; set; }
         [Required(ErrorMessage = "Menu name is required")]
         public string? Menu_Name { get; set; }
         public string? Notes { get; set; }

@@ -6,22 +6,19 @@ using ServerLibrary.Repositories.Contracts;
 
 namespace ServerLibrary.Repositories.Implementations.Dietitian
 {
-    public class DietitianRepository(AppDbContext _context) : IDietitianInterface<AvailableDietDTO>
+    public class AvailableDietitianRepository(AppDbContext _context) : IAvailableDietitianInterface<AvailableDietDTO>
     {
+
+        public Task<List<DietitianPatientPairDTO>> GetPatientDietitianPair(int dietitan_id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<GeneralResponse> AssignMenuToPatient(int patient_id, int dietitian_id, MenuToPatientDTO menuPatientDTO)
         {
             throw new NotImplementedException();
         }
 
-        public Task<GeneralResponse> DeleteById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<AvailableDietDTO>> GetAll()
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<List<AvailableDietDTO>> GetAvailableDietitans()
         {
@@ -41,21 +38,6 @@ namespace ServerLibrary.Repositories.Implementations.Dietitian
             }).ToList();
 
             return availableDietListDTO;
-        }
-
-        public Task<AvailableDietDTO> GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<GeneralResponse> Insert(AvailableDietDTO item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<GeneralResponse> Update(AvailableDietDTO item)
-        {
-            throw new NotImplementedException();
         }
     }
 }

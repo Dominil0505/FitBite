@@ -6,7 +6,7 @@ namespace Server.Controllers.Dietitian
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DietititanController(IDietitianInterface<AvailableDietDTO> dietitanService) : ControllerBase
+    public class DietititanController(IAvailableDietitianInterface<AvailableDietDTO> dietitanService) : ControllerBase
     {
         [HttpGet("available-dietitians")]
         public async Task<IActionResult> GetAvailableDietitans()
