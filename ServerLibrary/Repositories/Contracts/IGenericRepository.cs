@@ -2,7 +2,7 @@ using BaseLibrary.Responses;
 
 namespace ServerLibrary.Repositories.Contracts
 {
-    public interface IGenericRepositoryInterface<T>
+    public interface IGenericRepository<T>
     {
         Task<List<T>> GetAll();
         Task<T> GetById(int id);

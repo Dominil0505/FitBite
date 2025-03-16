@@ -3,7 +3,7 @@ using BaseLibrary.Responses;
 
 namespace ServerLibrary.Repositories.Contracts
 {
-    public interface IPatientInterface
+    public interface IPatient
     {
         Task<GeneralResponse> CompleteProfile(CompleteProfileDTO completeProfile);
         Task<GeneralResponse> IsProfileCompleted(int user_id);

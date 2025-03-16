@@ -7,7 +7,7 @@ using BaseLibrary.DTOs.AdminFunctionDTOs;
 
 namespace ServerLibrary.Repositories.Implementations.AdminFunctions
 {
-    public class AllergyRepository(AppDbContext _context) : IGenericRepositoryInterface<AllergyDTO>
+    public class AllergyRepository(AppDbContext _context) : IGenericRepository<AllergyDTO>
     {
         public async Task<List<AllergyDTO>> GetAll()
         {

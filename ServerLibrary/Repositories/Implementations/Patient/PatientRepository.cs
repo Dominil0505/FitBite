@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace ServerLibrary.Repositories.Implementations.Patient
 {
-    public class PatientRepository : IPatientInterface
+    public class PatientRepository : IPatient
     {
         private readonly AppDbContext _context;
 

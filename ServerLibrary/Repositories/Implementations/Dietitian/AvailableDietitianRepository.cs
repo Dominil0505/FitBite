@@ -6,7 +6,7 @@ using ServerLibrary.Repositories.Contracts;
 
 namespace ServerLibrary.Repositories.Implementations.Dietitian
 {
-    public class AvailableDietitianRepository(AppDbContext _context) : IAvailableDietitianInterface<AvailableDietDTO>
+    public class AvailableDietitianRepository(AppDbContext _context) : IAvailableDietitian<AvailableDietDTO>
     {
 
         public Task<List<DietitianPatientPairDTO>> GetPatientDietitianPair(int dietitan_id)

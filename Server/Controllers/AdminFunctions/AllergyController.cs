@@ -6,7 +6,7 @@ namespace Server.Controllers.AdminFunctions
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AllergyController(IGenericRepositoryInterface<AllergyDTO> genericRepositoryInterface) : GenericController<AllergyDTO>(genericRepositoryInterface)
+    public class AllergyController(IGenericRepository<AllergyDTO> genericRepositoryInterface) : GenericController<AllergyDTO>(genericRepositoryInterface)
     {
         
     }

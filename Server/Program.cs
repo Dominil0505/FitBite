@@ -11,6 +11,7 @@ using ServerLibrary.Repositories.Implementations;
 using ServerLibrary.Repositories.Implementations.AdminFunctions;
 using ServerLibrary.Repositories.Implementations.Dietitian;
 using ServerLibrary.Repositories.Implementations.Patient;
+using ServerLibrary.Repositories.Implementations.Seed;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,22 +57,27 @@ builder.Services.AddScoped<JWThelper>();
 
 
 // Admin function DI
-builder.Services.AddScoped<IGenericRepositoryInterface<AllergyDTO>, AllergyRepository>();
-builder.Services.AddScoped<IGenericRepositoryInterface<DiseaseDTO>, DiseaseRepository>();
-builder.Services.AddScoped<IGenericRepositoryInterface<IngredientDTO>, IngredientRepository>();
-builder.Services.AddScoped<IGenericRepositoryInterface<MedicationDTO>, MedicationRepository>();
-builder.Services.AddScoped<IGenericRepositoryInterface<FoodsDTO>, FoodRepository>();
+builder.Services.AddScoped<IGenericRepository<AllergyDTO>, AllergyRepository>();
+builder.Services.AddScoped<IGenericRepository<DiseaseDTO>, DiseaseRepository>();
+builder.Services.AddScoped<IGenericRepository<IngredientDTO>, IngredientRepository>();
+builder.Services.AddScoped<IGenericRepository<MedicationDTO>, MedicationRepository>();
+builder.Services.AddScoped<IGenericRepository<FoodsDTO>, FoodRepository>();
 
 // Patient DI
 builder.Services.AddScoped<IPatientAssignment<PatientDTO>, AdminPatientRepository>();
-builder.Services.AddScoped<IPatientInterface, PatientRepository>();
-
+builder.Services.AddScoped<IPatient, PatientRepository>();
 
 // Dietitan DI
-builder.Services.AddScoped<IAvailableDietitianInterface<AvailableDietDTO>, AvailableDietitianRepository>();
+builder.Services.AddScoped<IAvailableDietitian<AvailableDietDTO>, AvailableDietitianRepository>();
 
 // Profile DI
 builder.Services.AddScoped<IProfile, ProfileRepository>();
+
+// Seed DI
+builder.Services.AddScoped<ISeeder, DiseaseSeed>();
+builder.Services.AddScoped<ISeeder, AllergySeed>();
+builder.Services.AddScoped<ISeeder, RoleSeed>();
+builder.Services.AddScoped<ISeeder, MedicationSeed>();
 
 builder.Services.AddCors(options =>
 {

@@ -5,7 +5,7 @@ namespace Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GenericController<T>(IGenericRepositoryInterface<T> genericRepositoryInterface) : Controller where T : class
+    public class GenericController<T>(IGenericRepository<T> genericRepositoryInterface) : Controller where T : class
     {
         [HttpGet("all")]
         public async Task<IActionResult> GetAll() => Ok(await genericRepositoryInterface.GetAll());

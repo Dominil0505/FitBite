@@ -6,7 +6,7 @@ namespace Server.Controllers.Patient
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PatientController (IPatientInterface patientInterface) : Controller
+    public class PatientController (IPatient patientInterface) : Controller
     {
         [HttpPost("complete-profile")]
         public async Task<IActionResult> CompleteProfile(CompleteProfileDTO completeProfile)

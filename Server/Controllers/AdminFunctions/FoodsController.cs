@@ -6,7 +6,7 @@ namespace Server.Controllers.AdminFunctions
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FoodsController(IGenericRepositoryInterface<FoodsDTO> genericRepositoryInterface) : ControllerBase
+    public class FoodsController(IGenericRepository<FoodsDTO> genericRepositoryInterface) : ControllerBase
     {
 
         [HttpGet("all")]

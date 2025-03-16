@@ -6,7 +6,7 @@ using ServerLibrary.Repositories.Contracts;
 
 namespace ServerLibrary.Repositories.Implementations.Dietitian
 {
-    public class DietitianPatientRepository(AppDbContext _context) : IDietitianInterface
+    public class DietitianPatientRepository(AppDbContext _context) : IDietitian
     {
         public Task<GeneralResponse> AssignMenuToPatient(MenuToPatientDTO menuPatientDTO)
         {

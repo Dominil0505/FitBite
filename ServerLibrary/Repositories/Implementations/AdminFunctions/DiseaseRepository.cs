@@ -7,7 +7,7 @@ using ServerLibrary.Repositories.Contracts;
 
 namespace ServerLibrary.Repositories.Implementations.AdminFunctions
 {
-    public class DiseaseRepository(AppDbContext _context) : IGenericRepositoryInterface<DiseaseDTO>
+    public class DiseaseRepository(AppDbContext _context) : IGenericRepository<DiseaseDTO>
     {
         public async Task<List<DiseaseDTO>> GetAll()
         {

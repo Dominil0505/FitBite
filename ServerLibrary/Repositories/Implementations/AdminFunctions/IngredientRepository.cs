@@ -7,7 +7,7 @@ using ServerLibrary.Repositories.Contracts;
 
 namespace ServerLibrary.Repositories.Implementations.AdminFunctions
 {
-    public class IngredientRepository(AppDbContext _context) : IGenericRepositoryInterface<IngredientDTO>
+    public class IngredientRepository(AppDbContext _context) : IGenericRepository<IngredientDTO>
     {
         public async Task<List<IngredientDTO>> GetAll()
         {
